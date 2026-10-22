@@ -10,6 +10,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.2/firebase-app-compat.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.2/firebase-auth-compat.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.2/firebase-firestore-compat.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -98,7 +99,10 @@
           <h2 class="text-lg sm:text-xl font-black text-white mt-0.5">《AI 品牌危機與 MarTech 操盤手》動態戰情室</h2>
         </div>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" onclick="openQrInviteModal()" class="text-xs font-extrabold px-3.5 py-1.5 rounded-full bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/50 text-sky-300 shadow transition flex items-center gap-1.5">
+          <span>📱 課堂投影 QR Code (掃碼進房)</span>
+        </button>
         <span id="firebaseConnBadge" class="text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-900 border border-slate-700 text-emerald-400">
           🟢 Firebase 雲端安全連線中 (game18-brand-and-martech-board)
         </span>
@@ -124,6 +128,7 @@
         </div>
 
         <!-- Status Alert Banner (Green Verification Notice / Red Block Warning) -->
+        <div id="qrAutoJoinInviteBanner" class="hidden p-3.5 rounded-2xl bg-sky-950/60 border border-sky-400/50 text-sky-200 text-xs sm:text-sm font-bold leading-relaxed"></div>
         <div id="authStatusBanner" class="hidden p-4 rounded-2xl border text-xs sm:text-sm font-bold leading-relaxed"></div>
 
         <!-- Warm Spam Reminder Box (Shown on Register & Forgot Password, or after registration) -->
@@ -378,6 +383,11 @@
         <button id="aiConfigBtn" onclick="openAiModal()" class="flex items-center gap-1.5 text-xs sm:text-sm font-bold px-3 py-2 rounded-lg bg-violet-600/20 text-violet-300 border border-violet-500/40 hover:bg-violet-600/30 transition" title="設定 Gemini API Key 啟用真實 AI 動態協作">
           <span>🤖 AI 協作：</span>
           <span id="aiStatusBadge" class="text-amber-300">內建引擎 (點此設 Key)</span>
+        </button>
+
+        <button id="openCloudRoomBtn" onclick="openCloudRoomModal()" class="flex items-center gap-1.5 text-xs sm:text-sm font-bold px-3 py-2 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-500/40 hover:bg-sky-500/30 transition" title="開啟 Firebase 雲端多人房間連線模組（支援3人跨裝置同步決策）">
+          <span>📡 雲端房間：</span>
+          <span id="cloudRoomHeaderBadge" class="text-amber-300">單機沙盒 (點此連線)</span>
         </button>
 
         <button id="rewindBtn" onclick="useTimeRewindCard()" class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 transition disabled:opacity-40 disabled:cursor-not-allowed" title="安全試錯沙盒：撤回上一輪決策並重新調整">
@@ -759,6 +769,107 @@
 
     <!-- ==================== TAB 1: WAR ROOM SIMULATOR ==================== -->
     <section id="view-warroom" class="hidden space-y-5">
+
+      <!-- 🌐 Firebase 雲端即時連線中樞 (Always visible in War Room for 1-click Classroom Sync & Live Leaderboard) -->
+      <div id="cloudRealtimeHubCard" class="glass-card rounded-2xl p-4 border border-sky-500/40 bg-gradient-to-r from-slate-900/95 via-sky-950/25 to-indigo-950/30 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-2.5">
+            <span class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-extrabold flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              <span id="realtimeEngineStatusText">Firebase 雲端即時連線版 (Real-Time Sync Ready)</span>
+            </span>
+            <span class="text-xs text-slate-300">
+              快速進房：<select id="quickRoomSelect" onchange="document.getElementById('cloudRoomCodeInput').value=this.value" class="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-xs text-sky-300 font-mono font-bold">
+                <option value="TEAM-01">TEAM-01 (第一組)</option>
+                <option value="TEAM-02">TEAM-02 (第二組)</option>
+                <option value="TEAM-03">TEAM-03 (第三組)</option>
+                <option value="TEAM-04">TEAM-04 (第四組)</option>
+                <option value="TEAM-05">TEAM-05 (第五組)</option>
+                <option value="TEAM-06">TEAM-06 (第六組)</option>
+                <option value="TEAM-07">TEAM-07 (第七組)</option>
+                <option value="TEAM-08">TEAM-08 (第八組)</option>
+              </select>
+            </span>
+            <span class="text-xs text-slate-300">
+              角色：<select id="quickRoleSelect" onchange="document.getElementById('cloudRoomRoleSelect').value=this.value" class="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-xs text-amber-300 font-bold">
+                <option value="ALL">⚡ 全權操盤手</option>
+                <option value="roleA">🎙️ 角色A：公關總監</option>
+                <option value="roleB">🚀 角色B：廣告投手</option>
+                <option value="roleC">⚙️ 角色C：MarTech架構師</option>
+                <option value="OBSERVER">👑 導師/觀察員</option>
+              </select>
+            </span>
+            <button type="button" onclick="quickConnectCloudRoom()" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-extrabold text-xs shadow-md shadow-sky-500/20 transition">
+              ⚡ 一鍵雲端同步此組
+            </button>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" onclick="toggleRealtimeDrawer('chat')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-sky-300 border border-sky-500/30 transition">
+              💬 組內即時協商通訊 (<span id="roomChatCountBadge">0</span>)
+            </button>
+            <button type="button" onclick="toggleRealtimeDrawer('leaderboard')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-amber-300 border border-amber-500/30 transition">
+              🏆 全班即時戰況榜 (<span id="activeRoomsCountBadge">0</span>組)
+            </button>
+            <button type="button" onclick="openQrInviteModal()" class="px-3 py-1.5 rounded-xl bg-emerald-600/25 hover:bg-emerald-600/40 text-xs font-extrabold text-emerald-300 border border-emerald-500/40 transition flex items-center gap-1">
+              <span>📱 產生 QR Code 掃碼進房</span>
+            </button>
+            <button type="button" onclick="openCloudRoomModal()" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs font-semibold text-slate-300 border border-slate-700 transition">
+              ⚙️ 進階房號設定
+            </button>
+          </div>
+        </div>
+
+        <!-- Drawer 1: Real-time Team Negotiation Chat (組內非對稱角色即時協商) -->
+        <div id="realtimeChatDrawer" class="hidden pt-3 border-t border-slate-800/80 space-y-2.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="text-xs font-extrabold text-sky-300">💬 組內跨裝置即時協商頻道（自動同步至本房所有組員螢幕）：</span>
+            <div class="flex flex-wrap gap-1.5">
+              <button type="button" onclick="sendQuickTeamSignal('🎙️ 公關呼籲：這輪請優先保住 BTS 信任度，選誠實方案！')" class="text-[11px] px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30">🎙️ 公關喊話</button>
+              <button type="button" onclick="sendQuickTeamSignal('🚀 廣告呼籲：搜尋流量暴增，請選搜尋防守字保住 ROAS！')" class="text-[11px] px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30 hover:bg-sky-500/30">🚀 廣告喊話</button>
+              <button type="button" onclick="sendQuickTeamSignal('⚙️ MarTech確認：我已啟動 CDP 排除客訴受眾，放心投廣！')" class="text-[11px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30">⚙️ MarTech喊話</button>
+            </div>
+          </div>
+          <div id="roomChatMessagesBox" class="max-h-32 overflow-y-auto space-y-1.5 bg-slate-950/80 p-3 rounded-xl border border-slate-800 text-xs">
+            <div class="text-slate-400">尚未有協商訊息。連線房間後可在此跨手機/筆電即時傳訊討論！</div>
+          </div>
+          <div class="flex gap-2">
+            <input id="roomChatInput" type="text" placeholder="輸入給組員的即時協商訊息（例如：我們這輪選 A2 + B2 + C1 好嗎？）..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-sky-500">
+            <button type="button" onclick="sendRoomChatMessage()" class="px-4 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs shrink-0 transition">
+              發送同步訊息
+            </button>
+          </div>
+        </div>
+
+        <!-- Drawer 2: Class-Wide Live Leaderboard (全班各組即時戰況排行榜) -->
+        <div id="realtimeLeaderboardDrawer" class="hidden pt-3 border-t border-slate-800/80 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-extrabold text-amber-300">🏆 全班各組雲端即時戰況排行榜（Firestore onSnapshot 自動更新）：</span>
+            <span class="text-[11px] text-slate-400">綜合戰力 = BTS + (ROAS × 20) + (剩餘AP × 0.2)</span>
+          </div>
+          <div id="liveClassLeaderboardGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs"></div>
+        </div>
+      </div>
+
+      <!-- Firebase Cloud Room Live Status Bar (Shows when connected to a multiplayer room) -->
+      <div id="cloudRoomLiveBar" class="hidden glass-card rounded-2xl p-3.5 border border-sky-500/50 bg-sky-950/25 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-3 text-xs">
+          <span class="px-2.5 py-1 rounded-lg bg-sky-500/20 text-sky-300 font-black border border-sky-500/40 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span>雲端房間同步中：<strong id="liveBarRoomId" class="text-white font-mono"></strong></span>
+          </span>
+          <span class="text-slate-300">我的認領角色：<strong id="liveBarMyRole" class="text-amber-300"></strong></span>
+          <div id="liveBarMembersList" class="flex flex-wrap items-center gap-1.5"></div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="openCloudRoomModal()" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 text-xs font-bold border border-slate-700">
+            ⚙️ 房間設定 / 切換角色
+          </button>
+          <button type="button" onclick="leaveCloudRoom()" class="px-3 py-1 rounded-lg bg-rose-950/60 hover:bg-rose-900/70 text-rose-300 text-xs font-bold border border-rose-500/30">
+            🔌 離開房間
+          </button>
+        </div>
+      </div>
 
       <!-- Top KPI Dashboard & Real-time Trajectory -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
@@ -1276,6 +1387,9 @@
             <button onclick="deployCustomScenarioToWarRoom()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-emerald-600/20 transition">
               🚀 載入至戰情室沙盒立即實測！
             </button>
+            <button type="button" onclick="publishCustomScenarioToCloud()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-sky-600/20 transition">
+              ☁️ 發布至全班雲端題庫 (跨組共享)
+            </button>
             <button onclick="copyCustomScenarioCard()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs sm:text-sm border border-slate-700 transition">
               📋 複製共創關卡卡 (Markdown)
             </button>
@@ -1577,6 +1691,204 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ==================== FIREBASE CLOUD ROOM CONNECTION MODAL (雲端房間連線模組) ==================== -->
+  <div id="cloudRoomModal" class="fixed inset-0 z-50 hidden items-start justify-center bg-slate-950/85 backdrop-blur-md p-4 overflow-y-auto">
+    <div class="glass-card rounded-3xl max-w-4xl w-full p-6 sm:p-8 border border-sky-500/40 space-y-6 my-6 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-3">
+          <span class="w-10 h-10 rounded-xl bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-xl">📡</span>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-lg sm:text-xl font-black text-white">Firebase 雲端房間連線模組 (Multiplayer Sync)</h3>
+              <span class="text-xs font-extrabold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Firestore 即時同步</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">
+              支援小組 3 人各自用手機/筆電輸入同一房號連線，各自認領角色 A / B / C 即時同步勾選決策與戰情室指標！
+            </p>
+          </div>
+        </div>
+        <button type="button" onclick="closeCloudRoomModal()" class="text-slate-400 hover:text-white text-sm font-bold px-3 py-1.5 rounded-lg bg-slate-800">✕ 關閉</button>
+      </div>
+
+      <!-- Current Room Status Banner -->
+      <div id="modalRoomStatusBox" class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-wrap items-center justify-between gap-3">
+        <div class="text-xs sm:text-sm text-slate-300">
+          目前連線狀態：<strong id="modalRoomStateText" class="text-amber-300">尚未連線（單機沙盒模式）</strong>
+        </div>
+        <button type="button" id="modalLeaveRoomBtn" onclick="leaveCloudRoom()" class="hidden px-3.5 py-1.5 rounded-xl bg-rose-600/25 hover:bg-rose-600/40 text-rose-300 border border-rose-500/40 text-xs font-bold transition">
+          🔌 中斷房間連線（切回單機）
+        </button>
+      </div>
+
+      <!-- Create or Join Room Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <!-- Create / Join Room Form -->
+        <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
+          <h4 class="text-sm sm:text-base font-extrabold text-sky-300 flex items-center gap-2">
+            <span>🚀 建立或加入小組雲端戰情室</span>
+          </h4>
+
+          <div>
+            <label for="cloudRoomCodeInput" class="block text-xs font-bold text-slate-300 mb-1">1. 輸入或產生小組房號 (Room ID)</label>
+            <div class="flex gap-2">
+              <input id="cloudRoomCodeInput" type="text" placeholder="例如：TEAM-01 或 8888" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white font-mono uppercase focus:outline-none focus:border-sky-500">
+              <button type="button" onclick="generateRandomRoomCode()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-sky-300 border border-slate-700 shrink-0">
+                🎲 隨機房號
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label for="cloudRoomRoleSelect" class="block text-xs font-bold text-slate-300 mb-1">2. 選擇你在本房間認領的角色</label>
+            <select id="cloudRoomRoleSelect" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-sky-500">
+              <option value="ALL">⚡ 全權操盤手（可自由點選 A/B/C 所有角色）</option>
+              <option value="roleA">🎙️ 角色 A：品牌公關與聲譽總監 (PR Lead)</option>
+              <option value="roleB">🚀 角色 B：成長駭客與廣告投手 (Growth Lead)</option>
+              <option value="roleC">⚙️ 角色 C：MarTech 數據與 CRM 架構師</option>
+              <option value="OBSERVER">👑 課程導師 / 跨組觀察員（唯讀監看）</option>
+            </select>
+          </div>
+
+          <div class="flex items-center gap-2 pt-1">
+            <input id="lockRoleCheckbox" type="checkbox" class="rounded bg-slate-900 border-slate-700 text-sky-500 focus:ring-0">
+            <label for="lockRoleCheckbox" class="text-xs text-slate-300">
+              啟用「嚴格角色權限鎖定」（選擇角色 A/B/C 時，僅能勾選自己角色的決策按鈕）
+            </label>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5 pt-2">
+            <button type="button" onclick="createOrResetCloudRoom()" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-sky-600/25 transition">
+              ✨ 開設新房間 (當房主)
+            </button>
+            <button type="button" onclick="joinExistingCloudRoom()" class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-emerald-600/25 transition">
+              🔗 加入既有房間 (隊友)
+            </button>
+          </div>
+          <button type="button" onclick="openQrInviteModal()" class="w-full py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 font-extrabold text-xs sm:text-sm transition flex items-center justify-center gap-2">
+            <span>📱 顯示本房專屬 QR Code (讓隊友直接用手機掃描進房)</span>
+          </button>
+        </div>
+
+        <!-- Active Rooms Lobby & Teacher Monitor -->
+        <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between space-y-4">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="text-sm sm:text-base font-extrabold text-emerald-300">📋 雲端活躍房間大廳 (課堂各組即時戰況)</h4>
+              <button type="button" onclick="refreshCloudRoomsLobby()" class="text-xs font-bold text-slate-300 hover:text-white px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700">
+                🔄 重新整理
+              </button>
+            </div>
+            <p class="text-xs text-slate-400">
+              點擊任一房間可快速帶入房號並連線同步，方便 TONY 老師巡堂投影或組員快速進房：
+            </p>
+            <div id="cloudRoomsLobbyList" class="space-y-2 max-h-56 overflow-y-auto pr-1 text-xs">
+              <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 text-center">
+                尚無活躍雲端房間，請由左側「開設新房間」建立第一間課堂戰情室！
+              </div>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-950/90 border border-slate-800 text-[11px] text-slate-400 leading-relaxed">
+            💡 <strong>雲端同步說明</strong>：連線後，組內成員在各自裝置勾選角色 A/B/C 選項、執行回合推演、發動時間回溯卡或部署 AI 自訂劇本，皆會透過 Firestore <code class="text-sky-300">rooms/{roomId}</code> 即時同步至全組畫面。
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== QR CODE 課堂掃碼進房與分組邀請 MODAL ==================== -->
+  <div id="qrInviteModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/90 backdrop-blur-md p-4 overflow-y-auto">
+    <div class="glass-card rounded-3xl max-w-3xl w-full p-6 sm:p-8 border border-emerald-500/50 space-y-5 my-6 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-3">
+          <span class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-xl">📱</span>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-lg sm:text-xl font-black text-white">課堂投影 QR Code 掃碼進房產生器</h3>
+              <span class="text-xs font-extrabold px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">支援帶房號＆角色參數直達</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">
+              老師可投影在大螢幕讓全班掃描，或由各組組長在手機產生「本組專屬 QR Code」讓另外兩位隊友掃碼秒進同房！
+            </p>
+          </div>
+        </div>
+        <button type="button" onclick="closeQrInviteModal()" class="text-slate-400 hover:text-white text-sm font-bold px-3 py-1.5 rounded-lg bg-slate-800">✕ 關閉</button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+        <!-- Left Controls (7 Cols) -->
+        <div class="md:col-span-7 space-y-3.5 text-xs">
+          <div>
+            <label for="qrBaseUrlInput" class="block font-bold text-slate-300 mb-1">
+              1. 平台正式網址 (Base URL｜部署至 Firebase Hosting 或自訂網域後可在此貼上)：
+            </label>
+            <input id="qrBaseUrlInput" type="text" oninput="refreshQrCodeDisplay()" placeholder="例如：https://game18-brand-and-martech-board.web.app" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-emerald-500">
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label for="qrRoomSelect" class="block font-bold text-slate-300 mb-1">2. 掃碼後自動加入房號：</label>
+              <select id="qrRoomSelect" onchange="refreshQrCodeDisplay()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-sky-300 font-mono font-bold focus:outline-none focus:border-emerald-500">
+                <option value="TEAM-01">TEAM-01 (第一組)</option>
+                <option value="TEAM-02">TEAM-02 (第二組)</option>
+                <option value="TEAM-03">TEAM-03 (第三組)</option>
+                <option value="TEAM-04">TEAM-04 (第四組)</option>
+                <option value="TEAM-05">TEAM-05 (第五組)</option>
+                <option value="TEAM-06">TEAM-06 (第六組)</option>
+                <option value="TEAM-07">TEAM-07 (第七組)</option>
+                <option value="TEAM-08">TEAM-08 (第八組)</option>
+                <option value="">🏫 不指定房號 (僅進入平台首頁)</option>
+              </select>
+            </div>
+            <div>
+              <label for="qrRoleSelect" class="block font-bold text-slate-300 mb-1">3. 掃碼後預設認領角色：</label>
+              <select id="qrRoleSelect" onchange="refreshQrCodeDisplay()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-amber-300 font-bold focus:outline-none focus:border-emerald-500">
+                <option value="ALL">⚡ 全權操盤手 (進房後自由選)</option>
+                <option value="roleA">🎙️ 角色 A：公關總監</option>
+                <option value="roleB">🚀 角色 B：廣告投手</option>
+                <option value="roleC">⚙️ 角色 C：MarTech 架構師</option>
+                <option value="OBSERVER">👑 導師 / 觀察員</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1.5">
+            <div class="font-bold text-emerald-300">🔗 產生的專屬直達邀請連結：</div>
+            <div id="qrGeneratedUrlText" class="font-mono text-[11px] text-slate-300 break-all bg-slate-950 p-2 rounded-lg border border-slate-800 select-all"></div>
+            <div class="flex flex-wrap gap-2 pt-1">
+              <button type="button" onclick="copyQrInviteUrl()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs transition">
+                📋 複製專屬進房連結 (傳至 LINE 群組)
+              </button>
+              <button type="button" onclick="simulateScanCurrentQr()" class="px-3.5 py-1.5 rounded-lg bg-sky-600/30 hover:bg-sky-600/50 text-sky-200 border border-sky-500/40 font-bold text-xs transition">
+                ⚡ 本機立即套用此房號與角色
+              </button>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-indigo-950/30 border border-indigo-500/30 text-[11px] text-indigo-200 leading-relaxed">
+            💡 <strong>課堂操作三步驟</strong>：<br>
+            ① 學員拿手機相機掃描右側 QR Code ➔ ② 使用 Google 一鍵登入或 Email 驗證登入 ➔ ③ 系統會<strong>自動識別網址中的 <code>?room=TEAM-XX&amp;role=roleX</code> 參數</strong>，登入瞬間自動進入該組雲端戰情室！
+          </div>
+        </div>
+
+        <!-- Right High-Contrast Projector QR Code Card (5 Cols) -->
+        <div class="md:col-span-5 flex flex-col items-center justify-center p-5 rounded-3xl bg-white text-slate-950 shadow-2xl space-y-3">
+          <div class="text-center">
+            <span id="qrCardRoomBadge" class="inline-block px-3 py-0.5 rounded-full bg-indigo-600 text-white font-black text-xs tracking-wider">TEAM-01</span>
+            <h4 class="text-sm font-black text-slate-900 mt-1">手機相機掃碼加入戰情室</h4>
+            <p id="qrCardRoleSubtitle" class="text-[11px] font-bold text-indigo-700">預設身份：⚡ 全權操盤手</p>
+          </div>
+
+          <div id="qrCodeCanvasContainer" class="p-3 bg-white rounded-2xl border-2 border-slate-200 flex items-center justify-center min-w-[200px] min-h-[200px]"></div>
+
+          <div class="text-[11px] text-slate-500 font-semibold text-center">
+            《AI 品牌危機與 MarTech 操盤手》
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2784,7 +3096,21 @@
       if (kpiChartInstance) {
         setTimeout(() => kpiChartInstance.resize(), 80);
       }
-      showToast(`🎉 歡迎回來，${profile.realName}！已解鎖戰情室完整權限。`, 'emerald');
+      startGlobalRealtimeListeners();
+      renderLiveClassLeaderboard(Object.values(getLocalRoomsMirror()));
+      if (pendingAutoJoinFromUrl && pendingAutoJoinFromUrl.roomId) {
+        const targetRoom = pendingAutoJoinFromUrl.roomId;
+        const targetRole = pendingAutoJoinFromUrl.role || 'ALL';
+        pendingAutoJoinFromUrl = null;
+        document.getElementById('cloudRoomCodeInput').value = targetRoom;
+        document.getElementById('cloudRoomRoleSelect').value = targetRole;
+        switchMainTab('warroom');
+        setTimeout(() => {
+          joinExistingCloudRoom(targetRoom);
+        }, 120);
+      } else {
+        showToast(`🎉 歡迎回來，${profile.realName}！Firebase 雲端即時連線已啟動。`, 'emerald');
+      }
     }
 
     function lockMainAppAndShowAuthGate() {
@@ -3550,7 +3876,828 @@
       m.classList.remove('flex');
     }
 
+
+    // ==================== FIREBASE CLOUD ROOM CONNECTION MODULE (課堂多人跨裝置同步引擎) ====================
+    const LOCAL_ROOMS_MIRROR_KEY = "tony_saas_cloud_rooms_v1";
+    let cloudRoomState = {
+      connected: false,
+      roomId: null,
+      myRole: 'ALL', // 'ALL', 'roleA', 'roleB', 'roleC', 'OBSERVER'
+      strictRoleLock: false,
+      unsubscribe: null,
+      isApplyingRemote: false
+    };
+
+    const ROLE_DISPLAY_NAMES = {
+      ALL: '⚡ 全權操盤手',
+      roleA: '🎙️ 角色A (公關總監)',
+      roleB: '🚀 角色B (廣告投手)',
+      roleC: '⚙️ 角色C (MarTech架構師)',
+      OBSERVER: '👑 導師/觀察員'
+    };
+
+    function getLocalRoomsMirror() {
+      try {
+        const raw = localStorage.getItem(LOCAL_ROOMS_MIRROR_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      return {};
+    }
+
+    function saveLocalRoomsMirror(mapObj) {
+      try {
+        localStorage.setItem(LOCAL_ROOMS_MIRROR_KEY, JSON.stringify(mapObj));
+      } catch (e) {}
+    }
+
+    function openCloudRoomModal() {
+      playSound('click');
+      const m = document.getElementById('cloudRoomModal');
+      const codeInp = document.getElementById('cloudRoomCodeInput');
+      if ( codeInp && !codeInp.value.trim() ) {
+        codeInp.value = cloudRoomState.roomId || 'TEAM-01';
+      }
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+      updateCloudRoomUI();
+      refreshCloudRoomsLobby();
+    }
+
+    function closeCloudRoomModal() {
+      const m = document.getElementById('cloudRoomModal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    function generateRandomRoomCode() {
+      playSound('click');
+      const num = Math.floor(1000 + Math.random() * 9000);
+      document.getElementById('cloudRoomCodeInput').value = `TEAM-${num}`;
+    }
+
+    function buildRoomPayloadFromCurrentGame(existingMembers = {}) {
+      const memberUid = (currentMemberProfile && currentMemberProfile.uid) || 'guest_' + Math.random().toString(36).slice(2, 7);
+      const memberName = (currentMemberProfile && currentMemberProfile.realName) || '課堂學員';
+      const updatedMembers = { ...existingMembers };
+      updatedMembers[memberUid] = {
+        uid: memberUid,
+        name: memberName,
+        role: cloudRoomState.myRole,
+        updatedAt: new Date().toISOString()
+      };
+
+      const mirrorRooms = getLocalRoomsMirror();
+      const existingChat = (cloudRoomState.roomId && mirrorRooms[cloudRoomState.roomId]?.teamChat) || [];
+      const customScenarioData = (currentScenarioKey === 'custom_ugc' && SCENARIOS['custom_ugc'])
+        ? SCENARIOS['custom_ugc']
+        : null;
+
+      return {
+        roomId: cloudRoomState.roomId,
+        scenarioKey: currentScenarioKey,
+        scenarioName: SCENARIOS[currentScenarioKey]?.name || currentScenarioKey,
+        customScenarioData,
+        gameState: {
+          round: gameState.round,
+          bts: gameState.bts,
+          roas: gameState.roas,
+          ap: gameState.ap,
+          rewindLeft: gameState.rewindLeft,
+          previousSnapshot: gameState.previousSnapshot,
+          selected: gameState.selected,
+          historyTrajectory: gameState.historyTrajectory,
+          feedItems: gameState.feedItems.slice(0, 25),
+          battleLog: gameState.battleLog
+        },
+        members: updatedMembers,
+        teamChat: existingChat,
+        updatedBy: memberName,
+        updatedAt: new Date().toISOString()
+      };
+    }
+
+    async function createOrResetCloudRoom() {
+      const rawCode = (document.getElementById('cloudRoomCodeInput').value || '').trim().toUpperCase();
+      if (!rawCode) {
+        showToast('⚠️ 請先輸入房號（例如 TEAM-01）！', 'amber');
+        return;
+      }
+      const role = document.getElementById('cloudRoomRoleSelect').value;
+      const strictLock = document.getElementById('lockRoleCheckbox').checked;
+
+      if (cloudRoomState.unsubscribe) {
+        cloudRoomState.unsubscribe();
+        cloudRoomState.unsubscribe = null;
+      }
+
+      cloudRoomState.connected = true;
+      cloudRoomState.roomId = rawCode;
+      cloudRoomState.myRole = role;
+      cloudRoomState.strictRoleLock = strictLock;
+
+      const payload = buildRoomPayloadFromCurrentGame({});
+      const mirror = getLocalRoomsMirror();
+      mirror[rawCode] = payload;
+      saveLocalRoomsMirror(mirror);
+
+      if (fbDb) {
+        try {
+          await fbDb.collection('rooms').doc(rawCode).set(payload);
+        } catch (e) {
+          console.warn("Cloud room create fallback to local mirror:", e.message);
+        }
+      }
+
+      subscribeToCloudRoom(rawCode);
+      updateCloudRoomUI();
+      appendMemberHistoryLog(`建立並進入雲端戰情室房間【#${rawCode}】擔任 ${ROLE_DISPLAY_NAMES[role] || role}`);
+      playSound('success');
+      showToast(`📡 已成功開設雲端房間【${rawCode}】！請隊友輸入相同房號即可跨裝置同步。`, 'emerald');
+      closeCloudRoomModal();
+    }
+
+    async function joinExistingCloudRoom(customCode = null) {
+      const rawCode = (customCode || document.getElementById('cloudRoomCodeInput').value || '').trim().toUpperCase();
+      if (!rawCode) {
+        showToast('⚠️ 請輸入要加入的房號！', 'amber');
+        return;
+      }
+      const role = document.getElementById('cloudRoomRoleSelect').value;
+      const strictLock = document.getElementById('lockRoleCheckbox').checked;
+
+      if (cloudRoomState.unsubscribe) {
+        cloudRoomState.unsubscribe();
+        cloudRoomState.unsubscribe = null;
+      }
+
+      cloudRoomState.connected = true;
+      cloudRoomState.roomId = rawCode;
+      cloudRoomState.myRole = role;
+      cloudRoomState.strictRoleLock = strictLock;
+
+      let roomDocData = null;
+      if (fbDb) {
+        try {
+          const snap = await fbDb.collection('rooms').doc(rawCode).get();
+          if (snap.exists) {
+            roomDocData = snap.data();
+          }
+        } catch (e) {
+          console.warn("Cloud room join fetch notice:", e.message);
+        }
+      }
+
+      const mirror = getLocalRoomsMirror();
+      if (!roomDocData && mirror[rawCode]) {
+        roomDocData = mirror[rawCode];
+      }
+
+      if (!roomDocData) {
+        // Room doesn't exist yet -> create it automatically so students never hit a dead end
+        roomDocData = buildRoomPayloadFromCurrentGame({});
+      } else {
+        // Register self in members map
+        const memberUid = (currentMemberProfile && currentMemberProfile.uid) || 'guest_' + Math.random().toString(36).slice(2, 7);
+        const memberName = (currentMemberProfile && currentMemberProfile.realName) || '課堂學員';
+        roomDocData.members = roomDocData.members || {};
+        roomDocData.members[memberUid] = {
+          uid: memberUid,
+          name: memberName,
+          role: role,
+          updatedAt: new Date().toISOString()
+        };
+      }
+
+      mirror[rawCode] = roomDocData;
+      saveLocalRoomsMirror(mirror);
+
+      if (fbDb) {
+        try {
+          await fbDb.collection('rooms').doc(rawCode).set({ members: roomDocData.members, updatedAt: new Date().toISOString() }, { merge: true });
+        } catch (e) {}
+      }
+
+      applyRemoteRoomStateToLocal(roomDocData);
+      subscribeToCloudRoom(rawCode);
+      updateCloudRoomUI();
+      appendMemberHistoryLog(`加入雲端戰情室房間【#${rawCode}】擔任 ${ROLE_DISPLAY_NAMES[role] || role}`);
+      playSound('success');
+      showToast(`🔗 已成功連線至雲端房間【${rawCode}】！`, 'emerald');
+      closeCloudRoomModal();
+    }
+
+    function subscribeToCloudRoom(roomId) {
+      if (!fbDb) return;
+      try {
+        cloudRoomState.unsubscribe = fbDb.collection('rooms').doc(roomId).onSnapshot((docSnap) => {
+          if (!docSnap.exists) return;
+          const data = docSnap.data();
+          const mirror = getLocalRoomsMirror();
+          mirror[roomId] = data;
+          saveLocalRoomsMirror(mirror);
+          applyRemoteRoomStateToLocal(data);
+        }, (err) => {
+          console.warn("Room onSnapshot fallback:", err.message);
+        });
+      } catch (e) {}
+    }
+
+    function applyRemoteRoomStateToLocal(roomData) {
+      if (!roomData || !roomData.gameState) return;
+      cloudRoomState.isApplyingRemote = true;
+      try {
+        if (roomData.customScenarioData && roomData.scenarioKey === 'custom_ugc') {
+          SCENARIOS['custom_ugc'] = roomData.customScenarioData;
+          const sel = document.getElementById('scenarioSelect');
+          let opt = sel.querySelector('option[value="custom_ugc"]');
+          if (!opt) {
+            opt = document.createElement('option');
+            opt.value = 'custom_ugc';
+            sel.appendChild(opt);
+          }
+          opt.textContent = roomData.customScenarioData.name || '🛠️ 學員共創關卡';
+        }
+
+        if (roomData.scenarioKey && SCENARIOS[roomData.scenarioKey]) {
+          currentScenarioKey = roomData.scenarioKey;
+          const sel = document.getElementById('scenarioSelect');
+          if (sel) sel.value = currentScenarioKey;
+          const scenario = SCENARIOS[currentScenarioKey];
+          document.getElementById('roleA-secretText').textContent = scenario.secrets.roleA;
+          document.getElementById('roleB-secretText').textContent = scenario.secrets.roleB;
+          document.getElementById('roleC-secretText').textContent = scenario.secrets.roleC;
+        }
+
+        const rg = roomData.gameState;
+        const roundChanged = (gameState.round !== rg.round);
+        gameState.round = rg.round ?? 1;
+        gameState.bts = rg.bts ?? 60;
+        gameState.roas = rg.roas ?? 2.5;
+        gameState.ap = rg.ap ?? 100;
+        gameState.rewindLeft = rg.rewindLeft ?? 1;
+        gameState.previousSnapshot = rg.previousSnapshot || null;
+        gameState.selected = rg.selected || { roleA: null, roleB: null, roleC: null, alliance: 'AL2' };
+        gameState.historyTrajectory = rg.historyTrajectory || { labels: ['開局初始'], bts: [60], roas: [2.5] };
+        gameState.feedItems = Array.isArray(rg.feedItems) ? rg.feedItems : [];
+        gameState.battleLog = Array.isArray(rg.battleLog) ? rg.battleLog : [];
+
+        renderDashboardKPIs();
+        updateChart();
+        renderSocialFeed();
+        renderBattleLog();
+
+        if (gameState.round > 3 || gameState.bts < 30 || gameState.roas < 1.2) {
+          renderFinalOutcome();
+        } else {
+          document.getElementById('finalOutcomePanel').classList.add('hidden');
+          document.getElementById('decisionConsole').classList.remove('hidden');
+          const savedSel = { ...gameState.selected };
+          renderCurrentRound();
+          gameState.selected = savedSel;
+          const scenario = SCENARIOS[currentScenarioKey];
+          const roundData = scenario.rounds[gameState.round - 1];
+          renderRoleOptions('roleA', roundData.roleA, 'rose');
+          renderRoleOptions('roleB', roundData.roleB, 'sky');
+          renderRoleOptions('roleC', roundData.roleC, 'emerald');
+          if (gameState.round === 3 && roundData.alliance) {
+            renderRoleOptions('alliance', roundData.alliance, 'amber');
+          }
+          updatePlannedCostAndSynergy();
+        }
+
+        updateCloudRoomUI(roomData.members || {});
+        if (roomData.teamChat) {
+          renderRoomChatMessages(roomData.teamChat);
+        }
+        renderLiveClassLeaderboard(Object.values(getLocalRoomsMirror()));
+      } finally {
+        cloudRoomState.isApplyingRemote = false;
+      }
+    }
+
+    async function pushLocalStateToCloudRoom() {
+      if (!cloudRoomState.connected || !cloudRoomState.roomId || cloudRoomState.isApplyingRemote) return;
+      const roomId = cloudRoomState.roomId;
+      const mirror = getLocalRoomsMirror();
+      const existingMembers = (mirror[roomId] && mirror[roomId].members) ? mirror[roomId].members : {};
+      const payload = buildRoomPayloadFromCurrentGame(existingMembers);
+      mirror[roomId] = payload;
+      saveLocalRoomsMirror(mirror);
+
+      if (fbDb) {
+        try {
+          await fbDb.collection('rooms').doc(roomId).set(payload, { merge: true });
+        } catch (e) {
+          console.warn("Cloud room sync push notice:", e.message);
+        }
+      }
+      updateCloudRoomUI(payload.members);
+    }
+
+    function leaveCloudRoom() {
+      playSound('click');
+      if (cloudRoomState.unsubscribe) {
+        cloudRoomState.unsubscribe();
+        cloudRoomState.unsubscribe = null;
+      }
+      const oldRoom = cloudRoomState.roomId;
+      cloudRoomState.connected = false;
+      cloudRoomState.roomId = null;
+      cloudRoomState.myRole = 'ALL';
+      cloudRoomState.strictRoleLock = false;
+      updateCloudRoomUI({});
+      if (oldRoom) {
+        showToast(`🔌 已離開雲端房間【${oldRoom}】，切換回單機沙盒模式。`, 'amber');
+      }
+    }
+
+    function updateCloudRoomUI(membersMap = null) {
+      const headerBadge = document.getElementById('cloudRoomHeaderBadge');
+      const liveBar = document.getElementById('cloudRoomLiveBar');
+      const modalStateText = document.getElementById('modalRoomStateText');
+      const modalLeaveBtn = document.getElementById('modalLeaveRoomBtn');
+
+      if (!cloudRoomState.connected || !cloudRoomState.roomId) {
+        if (headerBadge) {
+          headerBadge.textContent = '單機沙盒 (點此連線)';
+          headerBadge.className = 'text-amber-300';
+        }
+        if (liveBar) liveBar.classList.add('hidden');
+        if (modalStateText) {
+          modalStateText.textContent = '尚未連線（單機沙盒模式）';
+          modalStateText.className = 'text-amber-300';
+        }
+        if (modalLeaveBtn) modalLeaveBtn.classList.add('hidden');
+        return;
+      }
+
+      const roleLabel = ROLE_DISPLAY_NAMES[cloudRoomState.myRole] || cloudRoomState.myRole;
+      if (headerBadge) {
+        headerBadge.textContent = `#${cloudRoomState.roomId} (${roleLabel.split(' ')[1] || roleLabel})`;
+        headerBadge.className = 'text-emerald-300 font-extrabold';
+      }
+      if (liveBar) {
+        liveBar.classList.remove('hidden');
+        document.getElementById('liveBarRoomId').textContent = `#${cloudRoomState.roomId}`;
+        document.getElementById('liveBarMyRole').textContent = roleLabel + (cloudRoomState.strictRoleLock ? ' [嚴格鎖定]' : '');
+      }
+      if (modalStateText) {
+        modalStateText.textContent = `🟢 已連線至房號【#${cloudRoomState.roomId}】｜擔任：${roleLabel}`;
+        modalStateText.className = 'text-emerald-300 font-extrabold';
+      }
+      if (modalLeaveBtn) modalLeaveBtn.classList.remove('hidden');
+
+      const mirror = getLocalRoomsMirror();
+      const activeMembers = membersMap || (mirror[cloudRoomState.roomId] && mirror[cloudRoomState.roomId].members) || {};
+      const membersContainer = document.getElementById('liveBarMembersList');
+      if (membersContainer) {
+        const list = Object.values(activeMembers);
+        membersContainer.innerHTML = list.map(m => `
+          <span class="px-2 py-0.5 rounded-full bg-slate-900 border border-slate-700 text-[11px] text-slate-200">
+            👤 ${m.name} <span class="text-sky-300">(${ROLE_DISPLAY_NAMES[m.role]?.split(' ')[1] || m.role})</span>
+          </span>
+        `).join('');
+      }
+    }
+
+    async function refreshCloudRoomsLobby() {
+      const container = document.getElementById('cloudRoomsLobbyList');
+      if (!container) return;
+      const mirror = getLocalRoomsMirror();
+      const mergedRooms = { ...mirror };
+
+      if (fbDb) {
+        try {
+          const snap = await fbDb.collection('rooms').get();
+          snap.forEach(doc => {
+            mergedRooms[doc.id] = { ...doc.data(), roomId: doc.id };
+          });
+          saveLocalRoomsMirror(mergedRooms);
+        } catch (e) {}
+      }
+
+      const roomsList = Object.values(mergedRooms).sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
+      if (roomsList.length === 0) {
+        container.innerHTML = `<div class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 text-center">目前尚無活躍雲端房間，請於左側輸入房號並點擊「✨ 開設新房間」！</div>`;
+        return;
+      }
+
+      container.innerHTML = roomsList.map(r => {
+        const memberCount = r.members ? Object.keys(r.members).length : 1;
+        const g = r.gameState || { round: 1, bts: 60, roas: 2.5, ap: 100 };
+        return `
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-sky-500/50 transition flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-mono font-black text-sky-300 text-xs sm:text-sm">#${r.roomId}</span>
+                <span class="text-[11px] px-2 py-0.5 rounded bg-slate-800 text-slate-300">👥 ${memberCount} 人在線</span>
+                <span class="text-[11px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">Round ${Math.min(3, g.round || 1)}</span>
+              </div>
+              <div class="text-[11px] text-slate-400 mt-1">
+                ${r.scenarioName || ''} ｜ 🛡️BTS: <strong class="text-emerald-300">${g.bts}</strong> ｜ 📈ROAS: <strong class="text-sky-300">${Number(g.roas || 2.5).toFixed(1)}x</strong>
+              </div>
+            </div>
+            <button type="button" onclick="document.getElementById('cloudRoomCodeInput').value='${r.roomId}';joinExistingCloudRoom('${r.roomId}')" class="px-3 py-1.5 rounded-lg bg-sky-600/25 hover:bg-sky-600/40 text-sky-200 border border-sky-500/40 font-bold text-xs transition">
+              🔗 加入同步
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+
+    // ==================== GLOBAL FIREBASE REAL-TIME LISTENERS (全端雲端即時連線版核心) ====================
+    let globalRoomsUnsubscribe = null;
+    let adminUsersUnsubscribe = null;
+    let allCloudRoomsLiveList = [];
+
+    function startGlobalRealtimeListeners() {
+      if (!fbDb) return;
+
+      // 1. Live listener on 'rooms' collection for Class Leaderboard & Shared UGC Scenarios
+      if (!globalRoomsUnsubscribe) {
+        try {
+          globalRoomsUnsubscribe = fbDb.collection('rooms').onSnapshot((snap) => {
+            const mirror = getLocalRoomsMirror();
+            snap.forEach(doc => {
+              const data = doc.data();
+              mirror[doc.id] = { ...data, roomId: doc.id };
+
+              // If a team published a shared custom scenario (doc id starts with UGC_ or has sharedCustomScenario)
+              if (data.sharedCustomScenario && data.sharedCustomScenario.id) {
+                const sc = data.sharedCustomScenario;
+                SCENARIOS[sc.id] = sc;
+                const sel = document.getElementById('scenarioSelect');
+                if (sel && !sel.querySelector(`option[value="${sc.id}"]`)) {
+                  const opt = document.createElement('option');
+                  opt.value = sc.id;
+                  opt.textContent = sc.name;
+                  sel.appendChild(opt);
+                }
+              }
+            });
+            saveLocalRoomsMirror(mirror);
+            renderLiveClassLeaderboard(Object.values(mirror));
+
+            const statusEl = document.getElementById('realtimeEngineStatusText');
+            if (statusEl) {
+              statusEl.textContent = `🟢 Firebase 雲端即時連線中 (${Object.keys(mirror).filter(k => !k.startsWith('UGC_')).length} 組活躍)`;
+            }
+          }, (err) => {
+            console.warn("Global rooms onSnapshot fallback:", err.message);
+            renderLiveClassLeaderboard(Object.values(getLocalRoomsMirror()));
+          });
+        } catch (e) {}
+      }
+
+      // 2. If current user is Admin, attach live listener on 'users' collection
+      if (currentMemberProfile && (currentMemberProfile.role === 'admin' || currentMemberProfile.isCreator || currentMemberProfile.email === CREATOR_ADMIN_EMAIL)) {
+        if (!adminUsersUnsubscribe) {
+          try {
+            adminUsersUnsubscribe = fbDb.collection('users').onSnapshot((snap) => {
+              const mirror = getLocalMembersMirror();
+              snap.forEach(doc => {
+                mirror[doc.id] = { ...mirror[doc.id], ...doc.data(), uid: doc.id };
+              });
+              saveLocalMembersMirror(mirror);
+              allMembersCache = Object.values(mirror).sort((a, b) => {
+                if (a.isCreator) return -1;
+                if (b.isCreator) return 1;
+                return String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
+              });
+              renderAdminMemberTable();
+            }, (err) => {});
+          } catch (e) {}
+        }
+      }
+    }
+
+    function quickConnectCloudRoom() {
+      const roomCode = document.getElementById('quickRoomSelect').value || 'TEAM-01';
+      const role = document.getElementById('quickRoleSelect').value || 'ALL';
+      document.getElementById('cloudRoomCodeInput').value = roomCode;
+      document.getElementById('cloudRoomRoleSelect').value = role;
+      joinExistingCloudRoom(roomCode);
+    }
+
+    function toggleRealtimeDrawer(which) {
+      playSound('click');
+      const chatD = document.getElementById('realtimeChatDrawer');
+      const lbD = document.getElementById('realtimeLeaderboardDrawer');
+      if (which === 'chat') {
+        chatD.classList.toggle('hidden');
+        lbD.classList.add('hidden');
+      } else {
+        lbD.classList.toggle('hidden');
+        chatD.classList.add('hidden');
+        renderLiveClassLeaderboard(Object.values(getLocalRoomsMirror()));
+      }
+    }
+
+    function renderLiveClassLeaderboard(roomsArray) {
+      const activeRooms = (roomsArray || []).filter(r => r && r.roomId && !String(r.roomId).startsWith('UGC_') && r.gameState);
+      const countBadge = document.getElementById('activeRoomsCountBadge');
+      if (countBadge) countBadge.textContent = activeRooms.length;
+
+      const grid = document.getElementById('liveClassLeaderboardGrid');
+      if (!grid) return;
+
+      if (activeRooms.length === 0) {
+        grid.innerHTML = `<div class="col-span-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 text-center">目前尚無小組開房，點擊上方「⚡ 一鍵雲端同步此組」即可登上全班即時戰況榜！</div>`;
+        return;
+      }
+
+      const ranked = activeRooms.map(r => {
+        const g = r.gameState || { bts: 60, roas: 2.5, ap: 100, round: 1 };
+        const score = Math.round((Number(g.bts) || 60) + (Number(g.roas) || 2.5) * 20 + (Number(g.ap) || 100) * 0.2);
+        return { ...r, compositeScore: score };
+      }).sort((a, b) => b.compositeScore - a.compositeScore);
+
+      grid.innerHTML = ranked.map((r, idx) => {
+        const g = r.gameState;
+        const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`;
+        const memberCount = r.members ? Object.keys(r.members).length : 1;
+        return `
+          <div class="p-3 rounded-xl bg-slate-950/90 border ${cloudRoomState.roomId === r.roomId ? 'border-sky-400 bg-sky-950/20' : 'border-slate-800'} flex flex-col justify-between gap-2">
+            <div class="flex items-center justify-between">
+              <span class="font-mono font-black text-white text-xs">${medal} ${r.roomId}</span>
+              <span class="text-[11px] font-extrabold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">戰力 ${r.compositeScore}</span>
+            </div>
+            <div class="text-[11px] text-slate-400 truncate">${r.scenarioName || ''}</div>
+            <div class="flex items-center justify-between text-[11px] pt-1 border-t border-slate-800/80">
+              <span class="text-emerald-300 font-bold">BTS:${g.bts}</span>
+              <span class="text-sky-300 font-bold">ROAS:${Number(g.roas).toFixed(1)}x</span>
+              <span class="text-slate-300">R${Math.min(3, g.round || 1)} (${memberCount}人)</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function sendQuickTeamSignal(text) {
+      document.getElementById('roomChatInput').value = text;
+      await sendRoomChatMessage();
+    }
+
+    async function sendRoomChatMessage() {
+      const inp = document.getElementById('roomChatInput');
+      const text = (inp.value || '').trim();
+      if (!text) return;
+
+      if (!cloudRoomState.connected || !cloudRoomState.roomId) {
+        // Auto-connect to selected quick room so message sends seamlessly
+        await quickConnectCloudRoom();
+      }
+
+      const roomId = cloudRoomState.roomId;
+      const senderName = (currentMemberProfile && currentMemberProfile.realName) || '學員';
+      const roleTag = ROLE_DISPLAY_NAMES[cloudRoomState.myRole]?.split(' ')[1] || cloudRoomState.myRole;
+      const msgObj = {
+        id: 'msg_' + Date.now(),
+        sender: senderName,
+        role: roleTag,
+        text: text,
+        time: new Date().toLocaleTimeString('zh-TW', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      };
+
+      inp.value = '';
+      const mirror = getLocalRoomsMirror();
+      const roomData = mirror[roomId] || buildRoomPayloadFromCurrentGame({});
+      const chatList = Array.isArray(roomData.teamChat) ? [...roomData.teamChat] : [];
+      chatList.push(msgObj);
+      roomData.teamChat = chatList.slice(-30);
+      mirror[roomId] = roomData;
+      saveLocalRoomsMirror(mirror);
+      renderRoomChatMessages(roomData.teamChat);
+
+      if (fbDb) {
+        try {
+          await fbDb.collection('rooms').doc(roomId).set({
+            teamChat: roomData.teamChat,
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
+        } catch (e) {}
+      }
+      playSound('click');
+    }
+
+    function renderRoomChatMessages(chatArray) {
+      const list = Array.isArray(chatArray) ? chatArray : [];
+      const countBadge = document.getElementById('roomChatCountBadge');
+      if (countBadge) countBadge.textContent = list.length;
+
+      const box = document.getElementById('roomChatMessagesBox');
+      if (!box) return;
+      if (list.length === 0) {
+        box.innerHTML = `<div class="text-slate-400">尚未有協商訊息。可點擊上方快捷喊話或在下方輸入訊息與隊友即時同步！</div>`;
+        return;
+      }
+      box.innerHTML = list.map(m => `
+        <div class="flex items-start justify-between gap-2 py-1 border-b border-slate-900 last:border-0">
+          <div>
+            <span class="font-bold text-sky-300">[${m.role || '組員'}] ${m.sender}：</span>
+            <span class="text-slate-200">${m.text}</span>
+          </div>
+          <span class="text-[10px] text-slate-500 font-mono shrink-0">${m.time || ''}</span>
+        </div>
+      `).join('');
+      box.scrollTop = box.scrollHeight;
+    }
+
+    async function publishCustomScenarioToCloud() {
+      deployCustomScenarioToWarRoom();
+      const customSc = SCENARIOS['custom_ugc'];
+      if (!customSc) return;
+
+      const sharedId = 'ugc_' + Date.now().toString(36);
+      const creatorName = (currentMemberProfile && currentMemberProfile.realName) || '學員小組';
+      const cloudScenario = {
+        ...JSON.parse(JSON.stringify(customSc)),
+        id: sharedId,
+        name: `☁️ [${creatorName}共創] ${customSc.name.replace('🛠️ [學員共創] ', '')}`
+      };
+
+      SCENARIOS[sharedId] = cloudScenario;
+      const sel = document.getElementById('scenarioSelect');
+      let opt = sel.querySelector(`option[value="${sharedId}"]`);
+      if (!opt) {
+        opt = document.createElement('option');
+        opt.value = sharedId;
+        sel.appendChild(opt);
+      }
+      opt.textContent = cloudScenario.name;
+      sel.value = sharedId;
+
+      if (fbDb) {
+        try {
+          await fbDb.collection('rooms').doc('UGC_' + sharedId).set({
+            roomId: 'UGC_' + sharedId,
+            sharedCustomScenario: cloudScenario,
+            createdBy: creatorName,
+            updatedAt: new Date().toISOString()
+          });
+        } catch (e) {
+          console.warn("Cloud UGC publish notice:", e.message);
+        }
+      }
+
+      appendMemberHistoryLog(`發布雲端共創關卡【${cloudScenario.name}】至全班共享題庫`);
+      playSound('success');
+      showToast(`☁️ 已將「${cloudScenario.name}」發布至 Firebase 全班雲端題庫！全班同學的劇本選單已即時同步新增！`, 'emerald');
+    }
+
+
+    // ==================== QR CODE 課堂掃碼進房 & URL 參數自動進房引擎 ====================
+    let pendingAutoJoinFromUrl = null;
+    let qrCodeInstance = null;
+
+    function checkUrlParamsForAutoJoin() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const roomParam = (params.get('room') || '').trim().toUpperCase();
+        const roleParam = (params.get('role') || 'ALL').trim();
+        if (roomParam) {
+          pendingAutoJoinFromUrl = {
+            roomId: roomParam,
+            role: ['ALL', 'roleA', 'roleB', 'roleC', 'OBSERVER'].includes(roleParam) ? roleParam : 'ALL'
+          };
+          const banner = document.getElementById('qrAutoJoinInviteBanner');
+          if (banner) {
+            banner.classList.remove('hidden');
+            banner.innerHTML = `📱 <strong>已成功掃描課堂戰情室 QR Code！</strong><br>系統已鎖定目標房號：<span class="text-white underline font-mono">#${pendingAutoJoinFromUrl.roomId}</span>（預設認領：<span class="text-amber-300">${ROLE_DISPLAY_NAMES[pendingAutoJoinFromUrl.role] || pendingAutoJoinFromUrl.role}</span>）。請完成下方登入或 Google 一鍵登入，即可自動進房同步！`;
+          }
+          // Pre-select in dropdowns
+          const qRoom = document.getElementById('quickRoomSelect');
+          if (qRoom) qRoom.value = pendingAutoJoinFromUrl.roomId;
+          const qRole = document.getElementById('quickRoleSelect');
+          if (qRole) qRole.value = pendingAutoJoinFromUrl.role;
+          const cRoom = document.getElementById('cloudRoomCodeInput');
+          if (cRoom) cRoom.value = pendingAutoJoinFromUrl.roomId;
+          const cRole = document.getElementById('cloudRoomRoleSelect');
+          if (cRole) cRole.value = pendingAutoJoinFromUrl.role;
+        }
+      } catch (e) {}
+    }
+
+    function getDefaultBaseAppUrl() {
+      try {
+        const savedUrl = localStorage.getItem('tony_martech_custom_base_url');
+        if (savedUrl) return savedUrl;
+        const href = window.location.href.split('?')[0].split('#')[0];
+        if (href.startsWith('http')) return href;
+      } catch (e) {}
+      return 'https://game18-brand-and-martech-board.web.app';
+    }
+
+    function openQrInviteModal() {
+      playSound('click');
+      const modal = document.getElementById('qrInviteModal');
+      const baseInp = document.getElementById('qrBaseUrlInput');
+      const roomSel = document.getElementById('qrRoomSelect');
+      const roleSel = document.getElementById('qrRoleSelect');
+
+      if (baseInp && !baseInp.value.trim()) {
+        baseInp.value = getDefaultBaseAppUrl();
+      }
+      if (cloudRoomState.connected && cloudRoomState.roomId && roomSel) {
+        roomSel.value = cloudRoomState.roomId;
+      } else if (roomSel) {
+        const quickVal = document.getElementById('quickRoomSelect')?.value;
+        if (quickVal) roomSel.value = quickVal;
+      }
+      if (roleSel && cloudRoomState.myRole) {
+        roleSel.value = cloudRoomState.myRole;
+      }
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      refreshQrCodeDisplay();
+    }
+
+    function closeQrInviteModal() {
+      const modal = document.getElementById('qrInviteModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function buildCurrentQrInviteUrl() {
+      const baseRaw = (document.getElementById('qrBaseUrlInput')?.value || '').trim() || 'https://game18-brand-and-martech-board.web.app';
+      try {
+        localStorage.setItem('tony_martech_custom_base_url', baseRaw);
+      } catch (e) {}
+      const cleanBase = baseRaw.split('?')[0];
+      const room = (document.getElementById('qrRoomSelect')?.value || '').trim();
+      const role = (document.getElementById('qrRoleSelect')?.value || 'ALL').trim();
+
+      if (!room) return cleanBase;
+      return `${cleanBase}?room=${encodeURIComponent(room)}&role=${encodeURIComponent(role)}`;
+    }
+
+    function refreshQrCodeDisplay() {
+      const fullUrl = buildCurrentQrInviteUrl();
+      const room = (document.getElementById('qrRoomSelect')?.value || '').trim();
+      const role = (document.getElementById('qrRoleSelect')?.value || 'ALL').trim();
+
+      const urlTextEl = document.getElementById('qrGeneratedUrlText');
+      if (urlTextEl) urlTextEl.textContent = fullUrl;
+
+      const badgeEl = document.getElementById('qrCardRoomBadge');
+      if (badgeEl) badgeEl.textContent = room ? `房號 #${room}` : '🏫 戰情室總入口';
+
+      const roleSubEl = document.getElementById('qrCardRoleSubtitle');
+      if (roleSubEl) {
+        roleSubEl.textContent = room
+          ? `掃碼預設：${ROLE_DISPLAY_NAMES[role] || role}`
+          : '掃碼進入登入畫面後自由選組';
+      }
+
+      const container = document.getElementById('qrCodeCanvasContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (typeof QRCode !== 'undefined') {
+        qrCodeInstance = new QRCode(container, {
+          text: fullUrl,
+          width: 190,
+          height: 190,
+          colorDark: '#090d16',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      } else {
+        container.innerHTML = `<div class="text-xs text-slate-600 p-4 text-center">QR 模組載入中，請複製左側連結分享</div>`;
+      }
+    }
+
+    function copyQrInviteUrl() {
+      const url = buildCurrentQrInviteUrl();
+      copyTextFallback(url, '📋 已複製專屬進房連結！可直接貼到課程 LINE 群組或產生簡報 QR Code！');
+    }
+
+    function simulateScanCurrentQr() {
+      const room = (document.getElementById('qrRoomSelect')?.value || 'TEAM-01').trim();
+      const role = (document.getElementById('qrRoleSelect')?.value || 'ALL').trim();
+      closeQrInviteModal();
+      if (!currentMemberProfile) {
+        pendingAutoJoinFromUrl = { roomId: room || 'TEAM-01', role };
+        const banner = document.getElementById('qrAutoJoinInviteBanner');
+        if (banner) {
+          banner.classList.remove('hidden');
+          banner.innerHTML = `📱 <strong>已設定目標房號：#${pendingAutoJoinFromUrl.roomId}（${ROLE_DISPLAY_NAMES[role] || role}）</strong>，請先登入即可自動進入該房間！`;
+        }
+        showToast(`📱 已鎖定房號 #${room || 'TEAM-01'}，請先登入系統！`, 'emerald');
+        return;
+      }
+      if (room) {
+        document.getElementById('cloudRoomCodeInput').value = room;
+        document.getElementById('cloudRoomRoleSelect').value = role;
+        switchMainTab('warroom');
+        joinExistingCloudRoom(room);
+      }
+    }
+
     window.onload = function() {
+      checkUrlParamsForAutoJoin();
       initFirebaseSaaS();
       updateAiHeaderBadge();
       initChart();
@@ -3633,6 +4780,7 @@
     function handleScenarioChange(key) {
       playSound('click');
       loadScenario(key);
+      pushLocalStateToCloudRoom();
     }
 
     function loadScenario(key) {
@@ -3698,6 +4846,7 @@
     function resetGame() {
       playSound('rewind');
       loadScenario(currentScenarioKey);
+      pushLocalStateToCloudRoom();
       showToast('🔄 戰情室已重置為開局狀態！', 'indigo');
     }
 
@@ -3867,6 +5016,16 @@
     }
 
     function selectOption(roleKey, optId) {
+      if (cloudRoomState.connected && cloudRoomState.strictRoleLock) {
+        if (cloudRoomState.myRole === 'OBSERVER') {
+          showToast('👑 您目前為「觀察員模式」，僅供即時監看各組決策！', 'amber');
+          return;
+        }
+        if (['roleA', 'roleB', 'roleC'].includes(cloudRoomState.myRole) && roleKey !== 'alliance' && roleKey !== cloudRoomState.myRole) {
+          showToast(`🔒 角色權限鎖定中：您認領的是「${ROLE_DISPLAY_NAMES[cloudRoomState.myRole]}」，請口頭說服隊友勾選該角色選項！`, 'amber');
+          return;
+        }
+      }
       playSound('click');
       gameState.selected[roleKey] = optId;
       const scenario = SCENARIOS[currentScenarioKey];
@@ -3874,6 +5033,7 @@
       const colorMap = { roleA: 'rose', roleB: 'sky', roleC: 'emerald', alliance: 'amber' };
       renderRoleOptions(roleKey, roundData[roleKey], colorMap[roleKey]);
       updatePlannedCostAndSynergy();
+      pushLocalStateToCloudRoom();
     }
 
     function updatePlannedCostAndSynergy() {
@@ -4116,6 +5276,7 @@
       renderSocialFeed();
       renderBattleLog();
       renderCurrentRound();
+      pushLocalStateToCloudRoom();
     }
 
     async function triggerLiveAiRoundEnrichment(scenario, roundData, roundNum, optA, optB, optC, customStrategyText, deltaBts, deltaRoas) {
@@ -4203,6 +5364,7 @@ ${customStrategyText ? `- 小組補充自訂細節：${customStrategyText}` : ''
       renderSocialFeed();
       renderBattleLog();
       renderCurrentRound();
+      pushLocalStateToCloudRoom();
       showToast('⏪ 已發動「時間回溯卡」！回到上一輪重新調整三方決策。', 'amber');
     }
 
@@ -4813,6 +5975,7 @@ ${customStrategyText ? `- 小組補充自訂細節：${customStrategyText}` : ''
 
       document.getElementById('customStatusText').textContent = `✅ 已成功部署「${title}」（含自訂三角色選項）！現在可請挑戰組別在戰情室破關。`;
       loadScenario(customKey);
+      pushLocalStateToCloudRoom();
       switchMainTab('warroom');
       playSound('success');
       showToast('🚀 自訂共創關卡與角色選項已載入戰情室！請開始第一輪挑戰！', 'emerald');
