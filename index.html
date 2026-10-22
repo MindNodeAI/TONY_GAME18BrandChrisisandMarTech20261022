@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" class="dark">
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,29 +33,250 @@
     }
   </script>
   <style>
+    :root {
+      --bg-app: #f4f7fb;
+      --bg-card: #ffffff;
+      --bg-subtle: #f8fafc;
+      --bg-pill: #f1f5f9;
+      --border-soft: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text-main: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --primary: #4f46e5;
+      --primary-soft: #eef2ff;
+    }
+
     body {
       font-family: 'Inter', 'Noto Sans TC', sans-serif;
-      background-color: #090d16;
-      color: #f1f5f9;
+      background-color: var(--bg-app);
+      color: var(--text-main);
       overflow-x: hidden;
+      line-height: 1.65;
+      letter-spacing: 0.01em;
     }
+
+    /* Clean Bright Card System with generous elevation & breathing room */
     .glass-card {
-      background: rgba(19, 28, 46, 0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(148, 163, 184, 0.14);
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      box-shadow: 0 6px 24px -4px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02) !important;
+      backdrop-filter: none !important;
     }
+
+    /* Clean Horizontal Segmented Pill Bar */
+    .segmented-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+      background: #f1f5f9;
+      padding: 0.4rem;
+      border-radius: 1rem;
+      border: 1px solid #e2e8f0;
+    }
+
+    .segmented-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.55rem 1.15rem;
+      border-radius: 0.75rem;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #475569 !important;
+      background: transparent !important;
+      border: 1px solid transparent !important;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .segmented-pill:hover {
+      color: #0f172a !important;
+      background: rgba(255, 255, 255, 0.7) !important;
+    }
+    .segmented-pill.active {
+      background: #ffffff !important;
+      color: #4f46e5 !important;
+      font-weight: 800 !important;
+      border-color: #e2e8f0 !important;
+      box-shadow: 0 2px 10px -2px rgba(15, 23, 42, 0.08) !important;
+    }
+
+    /* Global Bright Theme Adaptation for Legacy Dark Classes */
+    .bg-slate-950, .bg-slate-950\/90, .bg-slate-950\/85, .bg-slate-950\/80, .bg-slate-950\/70 {
+      background-color: #f8fafc !important;
+    }
+    .bg-slate-900, .bg-slate-900\/95, .bg-slate-900\/90, .bg-slate-900\/80, .bg-slate-900\/70, .bg-slate-900\/60, .bg-slate-900\/50, .bg-slate-900\/40 {
+      background-color: #f8fafc !important;
+    }
+    .bg-slate-800, .bg-slate-800\/90, .bg-slate-800\/80, .bg-slate-800\/70 {
+      background-color: #f1f5f9 !important;
+    }
+    .hover\:bg-slate-800:hover, .hover\:bg-slate-700:hover, .hover\:bg-slate-900\/60:hover {
+      background-color: #e2e8f0 !important;
+    }
+
+    /* Override dark gradients to soft airy pastel gradients */
+    .from-indigo-950\/50, .via-slate-900\/90, .to-violet-950\/40 {
+      --tw-gradient-from: #eef2ff !important;
+      --tw-gradient-via: #ffffff !important;
+      --tw-gradient-to: #f5f3ff !important;
+    }
+    .from-slate-900\/95, .via-sky-950\/25, .to-indigo-950\/30 {
+      --tw-gradient-from: #ffffff !important;
+      --tw-gradient-via: #f0f9ff !important;
+      --tw-gradient-to: #eef2ff !important;
+    }
+
+    /* Soft Tinted Containers in Light Mode */
+    .bg-indigo-950\/50, .bg-indigo-950\/40, .bg-indigo-950\/30, .bg-indigo-950\/20 {
+      background-color: #eef2ff !important;
+    }
+    .bg-violet-950\/40, .bg-violet-950\/35, .bg-violet-950\/15 {
+      background-color: #f5f3ff !important;
+    }
+    .bg-rose-950\/60, .bg-rose-950\/40, .bg-rose-950\/30, .bg-rose-950\/25 {
+      background-color: #fff1f2 !important;
+    }
+    .bg-emerald-950\/60, .bg-emerald-950\/40, .bg-emerald-950\/30, .bg-emerald-950\/25 {
+      background-color: #ecfdf5 !important;
+    }
+    .bg-sky-950\/60, .bg-sky-950\/40, .bg-sky-950\/25, .bg-sky-950\/20 {
+      background-color: #f0f9ff !important;
+    }
+    .bg-amber-950\/60, .bg-amber-950\/40, .bg-amber-950\/10 {
+      background-color: #fffbeb !important;
+    }
+
+    /* Modal Backdrop stays softly dimmed so white modal cards pop */
+    .fixed.inset-0.bg-slate-950\/90,
+    .fixed.inset-0.bg-slate-950\/85,
+    .fixed.inset-0.bg-slate-950\/80 {
+      background-color: rgba(15, 23, 42, 0.45) !important;
+    }
+
+    /* Borders in Light Mode */
+    .border-slate-900, .border-slate-900\/80,
+    .border-slate-800, .border-slate-800\/90, .border-slate-800\/80, .border-slate-800\/60,
+    .border-slate-700 {
+      border-color: #e2e8f0 !important;
+    }
+    .divide-slate-800 > :not([hidden]) ~ :not([hidden]),
+    .divide-slate-800\/80 > :not([hidden]) ~ :not([hidden]) {
+      border-color: #e2e8f0 !important;
+    }
+
+    /* Typography Contrast in Light Mode */
+    .text-white {
+      color: #0f172a !important;
+    }
+    /* Keep white text on solid vibrant buttons & badges */
+    .bg-indigo-600.text-white,
+    .bg-emerald-600.text-white,
+    .bg-rose-600.text-white,
+    .bg-sky-600.text-white,
+    .bg-violet-600.text-white,
+    .from-indigo-600.text-white,
+    .from-emerald-600.text-white,
+    .from-rose-600.text-white,
+    .from-sky-500.text-white,
+    .from-sky-600.text-white,
+    .from-violet-600.text-white,
+    .bg-indigo-600 .text-white,
+    .from-indigo-600 .text-white,
+    .from-emerald-600 .text-white,
+    .from-sky-500 .text-white,
+    .from-violet-600 .text-white {
+      color: #ffffff !important;
+    }
+
+    .text-slate-100, .text-slate-200 {
+      color: #1e293b !important;
+    }
+    .text-slate-300 {
+      color: #334155 !important;
+    }
+    .text-slate-400 {
+      color: #64748b !important;
+    }
+
+    /* Vibrant Readable Accent Text in Light Mode */
+    .text-indigo-300, .text-indigo-200, .text-indigo-100 {
+      color: #4338ca !important;
+    }
+    .text-indigo-400 {
+      color: #4f46e5 !important;
+    }
+    .text-emerald-400, .text-emerald-300, .text-emerald-200, .text-emerald-100 {
+      color: #047857 !important;
+    }
+    .text-rose-400, .text-rose-300, .text-rose-200, .text-rose-100 {
+      color: #be123c !important;
+    }
+    .text-sky-400, .text-sky-300, .text-sky-200, .text-sky-100 {
+      color: #0369a1 !important;
+    }
+    .text-amber-400, .text-amber-300, .text-amber-200, .text-amber-200\/80 {
+      color: #b45309 !important;
+    }
+    .text-violet-300, .text-violet-200, .text-violet-100 {
+      color: #6d28d9 !important;
+    }
+
+    /* Soft Pill Badges in Light Mode */
+    .bg-indigo-500\/20, .bg-indigo-500\/15, .bg-indigo-600\/25 {
+      background-color: #e0e7ff !important;
+    }
+    .bg-emerald-500\/20, .bg-emerald-500\/15, .bg-emerald-600\/25 {
+      background-color: #d1fae5 !important;
+    }
+    .bg-rose-500\/20, .bg-rose-600\/20, .bg-rose-600\/25 {
+      background-color: #ffe4e6 !important;
+    }
+    .bg-sky-500\/20, .bg-sky-600\/20, .bg-sky-600\/25, .bg-sky-600\/30 {
+      background-color: #e0f2fe !important;
+    }
+    .bg-amber-500\/20, .bg-amber-500\/15 {
+      background-color: #fef3c7 !important;
+    }
+    .bg-violet-500\/20, .bg-violet-600\/20, .bg-violet-600\/25 {
+      background-color: #ede9fe !important;
+    }
+
+    /* Form Controls (Inputs, Selects, Textareas) */
+    input:not([type="checkbox"]), select, textarea {
+      background-color: #ffffff !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: #4f46e5 !important;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12) !important;
+    }
+
+    /* Toast Notifications in Light Mode */
+    #toastContainer > div {
+      background: #ffffff !important;
+      color: #0f172a !important;
+      border-width: 1px !important;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.12) !important;
+    }
+
     .pulse-danger {
       animation: pulseDanger 2s infinite;
     }
     @keyframes pulseDanger {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.45); }
-      50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+      0%, 100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.35); }
+      50% { box-shadow: 0 0 0 8px rgba(225, 29, 72, 0); }
     }
     .comment-enter {
-      animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     @keyframes slideIn {
-      from { opacity: 0; transform: translateY(-10px); }
+      from { opacity: 0; transform: translateY(-8px); }
       to { opacity: 1; transform: translateY(0); }
     }
     ::-webkit-scrollbar {
@@ -63,14 +284,14 @@
       height: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: #0f172a;
+      background: #f1f5f9;
     }
     ::-webkit-scrollbar-thumb {
-      background: #334155;
+      background: #cbd5e1;
       border-radius: 3px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: #475569;
+      background: #94a3b8;
     }
   </style>
 </head>
@@ -272,7 +493,13 @@
           </div>
 
           <!-- 4 Credentials Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 pt-5 border-t border-slate-800/80 text-xs">
+          <div class="pt-4 mt-4 border-t border-slate-200 flex items-center justify-between">
+            <span class="text-xs text-slate-500 font-medium">點擊展開查看創作者學經歷與專業認證背景</span>
+            <button type="button" onclick="document.getElementById('authCredentialsDrawer').classList.toggle('hidden')" class="text-xs font-bold text-indigo-600 hover:text-indigo-500 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-200 transition">
+              ✨ 展開 / 收合詳細學經歷
+            </button>
+          </div>
+          <div id="authCredentialsDrawer" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-200 text-xs">
             <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1.5">
               <div class="font-extrabold text-indigo-300 text-xs sm:text-sm flex items-center gap-1.5">
                 <span>💼</span> <span>現職 Current</span>
@@ -348,94 +575,102 @@
   <!-- ==================== MAIN APPLICATION WORKSPACE (LOCKED UNTIL LOGIN) ==================== -->
   <div id="mainAppWorkspace" class="hidden min-h-screen flex flex-col">
 
-  <!-- Top Navigation & Command Bar -->
-  <header class="sticky top-0 z-30 glass-card border-b border-slate-800/80 px-4 py-3">
-    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <div class="w-11 h-11 rounded-xl bg-slate-900/90 border border-indigo-500/40 p-1 flex items-center justify-center shadow-lg shadow-indigo-500/20 overflow-hidden shrink-0">
-          <img src="https://firebasestorage.googleapis.com/v0/b/k16-tony-ai-wisdom-platform.firebasestorage.app/o/assets%2F6av64EOvvqQNAIoXqcPfHC5BBeF3%2F1785039560457_1.png?alt=media&token=19b27497-4101-4436-bc80-b299741b7984" alt="TONY Studio Logo" class="w-full h-full object-contain rounded-lg" onerror="this.style.display='none';this.parentElement.textContent='⚡';">
-        </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">TONY 遊戲化教學沙盒</span>
-            <span id="headerScenarioBadge" class="text-xs font-medium px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">🔥 危機進行中</span>
+  <!-- Top Navigation & Clean Horizontal Selection Bar -->
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 sm:px-6 py-4 shadow-sm">
+    <div class="max-w-7xl mx-auto space-y-3.5">
+      <!-- Top Row: Brand Identity + Scenario Selector + Progressive Disclosure Utility Bar -->
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-indigo-50 border border-indigo-200 p-1.5 flex items-center justify-center shrink-0">
+            <img src="https://firebasestorage.googleapis.com/v0/b/k16-tony-ai-wisdom-platform.firebasestorage.app/o/assets%2F6av64EOvvqQNAIoXqcPfHC5BBeF3%2F1785039560457_1.png?alt=media&token=19b27497-4101-4436-bc80-b299741b7984" alt="TONY Studio Logo" class="w-full h-full object-contain rounded-lg" onerror="this.style.display='none';this.parentElement.textContent='⚡';">
           </div>
-          <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white mt-0.5">《AI 品牌危機與 MarTech 操盤手》動態戰情室</h1>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">TONY 遊戲化教學沙盒</span>
+              <span id="headerScenarioBadge" class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">🔥 危機進行中</span>
+            </div>
+            <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white mt-0.5">《AI 品牌危機與 MarTech 操盤手》動態戰情室</h1>
+          </div>
+        </div>
+
+        <!-- Primary Controls + Progressive Disclosure More Tools Popover -->
+        <div class="flex flex-wrap items-center gap-2.5">
+          <label for="scenarioSelect" class="sr-only">選擇產業危機劇本</label>
+          <select id="scenarioSelect" onchange="handleScenarioChange(this.value)" class="bg-slate-900 border border-slate-700 text-slate-200 text-xs sm:text-sm rounded-xl px-3.5 py-2 focus:outline-none focus:border-indigo-500 max-w-[240px] sm:max-w-xs truncate font-semibold">
+            <option value="tea">🍵 劇本 1：聯名手搖飲「天然香精」標示炎上</option>
+            <option value="beauty">💄 劇本 2：美妝電商「AI 廣告抄襲＋敏感肌災情」</option>
+            <option value="saas">💻 劇本 3：SaaS 雲端平台「雙11標錯價＋客服癱瘓」</option>
+            <option value="ev">🚗 劇本 4：智慧電動車「OTA 輔助駕駛異常＋車主連署」</option>
+            <option value="airline">✈️ 劇本 5：廉價航空「颱風班機延誤18小時＋地勤失言」</option>
+            <option value="pet">🐾 劇本 6：頂級寵物鮮食「貓糧牛磺酸不足＋獸醫質疑」</option>
+            <option value="game">🎮 劇本 7：手遊大作「轉蛋機率暗改炎上＋課長集體退費」</option>
+            <option value="health">💊 劇本 8：保健食品「葉黃素網紅團購誇大療效遭開罰」</option>
+            <option value="bank">💳 劇本 9：數位銀行「高利活存與回饋腰斬＋APP當機」</option>
+            <option value="fashion">👟 劇本 10：潮流運動品牌「限量鞋黃牛秒殺＋內線轉賣」</option>
+          </select>
+
+          <button id="openCloudRoomBtn" onclick="openCloudRoomModal()" class="flex items-center gap-1.5 text-xs sm:text-sm font-bold px-3.5 py-2 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/40 hover:bg-sky-500/30 transition" title="開啟 Firebase 雲端多人房間連線模組（支援3人跨裝置同步決策）">
+            <span>📡 雲端房間：</span>
+            <span id="cloudRoomHeaderBadge" class="text-amber-300">單機沙盒 (點此連線)</span>
+          </button>
+
+          <!-- Progressive Disclosure: Secondary Tools Dropdown -->
+          <div class="relative">
+            <button type="button" onclick="toggleHeaderToolsDrawer()" class="flex items-center gap-1.5 text-xs sm:text-sm font-bold px-3.5 py-2 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 transition">
+              <span>🧰 輔助工具與設定 ▾</span>
+            </button>
+            <div id="headerToolsPopover" class="hidden absolute right-0 mt-2 w-72 rounded-2xl bg-white border border-slate-200 shadow-2xl p-3.5 z-50 space-y-2.5">
+              <div class="text-[11px] font-extrabold text-slate-400 px-1 uppercase tracking-wider">沙盒控制項 (漸進式收納)</div>
+              <button id="aiConfigBtn" onclick="openAiModal();toggleHeaderToolsDrawer();" class="w-full flex items-center justify-between text-xs font-bold px-3 py-2.5 rounded-xl bg-violet-600/20 text-violet-300 border border-violet-500/40 hover:bg-violet-600/30 transition">
+                <span>🤖 AI 協作：</span>
+                <span id="aiStatusBadge" class="text-amber-300">內建引擎 (點此設 Key)</span>
+              </button>
+              <button id="rewindBtn" onclick="useTimeRewindCard();toggleHeaderToolsDrawer();" class="w-full flex items-center justify-between text-xs font-semibold px-3 py-2.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 transition disabled:opacity-40 disabled:cursor-not-allowed">
+                <span>⏪ 時間回溯卡</span>
+                <span id="rewindCountBadge" class="px-2 py-0.5 bg-amber-500 text-white rounded-full font-bold text-xs">1</span>
+              </button>
+              <button id="audioToggleBtn" onclick="toggleAudio()" class="w-full text-left text-xs font-medium px-3 py-2.5 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition">
+                🔊 音效：開
+              </button>
+              <button onclick="openResetModal();toggleHeaderToolsDrawer();" class="w-full text-left text-xs font-medium px-3 py-2.5 rounded-xl bg-slate-800 text-rose-300 border border-slate-700 hover:bg-rose-950/50 transition">
+                🔄 重置本局
+              </button>
+              <button id="openTonyBioBtn" onclick="openTonyBioModal();toggleHeaderToolsDrawer();" class="w-full flex items-center gap-1.5 text-xs font-bold px-3 py-2.5 rounded-xl bg-amber-500/15 text-amber-300 border border-amber-500/40 hover:bg-amber-500/25 transition">
+                <span>👨‍🏫 TONY 顧問簡介</span>
+              </button>
+            </div>
+          </div>
+
+          <button id="adminDashboardBtn" onclick="openAdminDashboard()" class="hidden items-center gap-1.5 text-xs sm:text-sm font-extrabold px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white border border-emerald-400/50 shadow-sm hover:from-emerald-500 hover:to-teal-500 transition">
+            <span>🛡️ 進入管理後台</span>
+          </button>
+
+          <div id="headerUserBadge" class="hidden items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700 text-xs">
+            <span id="headerUserRoleTag" class="px-2 py-0.5 rounded-md font-bold bg-indigo-500/20 text-indigo-300">會員</span>
+            <span id="headerUserName" class="font-bold text-slate-200 max-w-[110px] truncate">學員</span>
+            <button id="headerLogoutBtn" onclick="handleFirebaseLogout()" class="ml-1 text-rose-400 hover:text-rose-300 font-bold underline">登出</button>
+          </div>
         </div>
       </div>
 
-      <!-- Scenario Selector & Utility Controls -->
-      <div class="flex flex-wrap items-center gap-2">
-        <label for="scenarioSelect" class="sr-only">選擇產業危機劇本</label>
-        <select id="scenarioSelect" onchange="handleScenarioChange(this.value)" class="bg-slate-900 border border-slate-700 text-slate-200 text-xs sm:text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-500 max-w-[260px] sm:max-w-xs truncate">
-          <option value="tea">🍵 劇本 1：聯名手搖飲「天然香精」標示炎上</option>
-          <option value="beauty">💄 劇本 2：美妝電商「AI 廣告抄襲＋敏感肌災情」</option>
-          <option value="saas">💻 劇本 3：SaaS 雲端平台「雙11標錯價＋客服癱瘓」</option>
-          <option value="ev">🚗 劇本 4：智慧電動車「OTA 輔助駕駛異常＋車主連署」</option>
-          <option value="airline">✈️ 劇本 5：廉價航空「颱風班機延誤18小時＋地勤失言」</option>
-          <option value="pet">🐾 劇本 6：頂級寵物鮮食「貓糧牛磺酸不足＋獸醫質疑」</option>
-          <option value="game">🎮 劇本 7：手遊大作「轉蛋機率暗改炎上＋課長集體退費」</option>
-          <option value="health">💊 劇本 8：保健食品「葉黃素網紅團購誇大療效遭開罰」</option>
-          <option value="bank">💳 劇本 9：數位銀行「高利活存與回饋腰斬＋APP當機」</option>
-          <option value="fashion">👟 劇本 10：潮流運動品牌「限量鞋黃牛秒殺＋內線轉賣」</option>
-        </select>
-
-        <button id="aiConfigBtn" onclick="openAiModal()" class="flex items-center gap-1.5 text-xs sm:text-sm font-bold px-3 py-2 rounded-lg bg-violet-600/20 text-violet-300 border border-violet-500/40 hover:bg-violet-600/30 transition" title="設定 Gemini API Key 啟用真實 AI 動態協作">
-          <span>🤖 AI 協作：</span>
-          <span id="aiStatusBadge" class="text-amber-300">內建引擎 (點此設 Key)</span>
+      <!-- Main Mode Horizontal Selection Bar (Clean Segmented Pill Design) -->
+      <div class="segmented-bar">
+        <button onclick="switchMainTab('academy')" id="tabBtn-academy" class="tab-nav-btn segmented-pill active">
+          📖 0. 先修知識與核心理念 (課前講授)
         </button>
-
-        <button id="openCloudRoomBtn" onclick="openCloudRoomModal()" class="flex items-center gap-1.5 text-xs sm:text-sm font-bold px-3 py-2 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-500/40 hover:bg-sky-500/30 transition" title="開啟 Firebase 雲端多人房間連線模組（支援3人跨裝置同步決策）">
-          <span>📡 雲端房間：</span>
-          <span id="cloudRoomHeaderBadge" class="text-amber-300">單機沙盒 (點此連線)</span>
+        <button onclick="switchMainTab('warroom')" id="tabBtn-warroom" class="tab-nav-btn segmented-pill">
+          🔥 1. 戰情室決策沙盒
         </button>
-
-        <button id="rewindBtn" onclick="useTimeRewindCard()" class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 transition disabled:opacity-40 disabled:cursor-not-allowed" title="安全試錯沙盒：撤回上一輪決策並重新調整">
-          <span>⏪ 時間回溯卡</span>
-          <span id="rewindCountBadge" class="px-1.5 py-0.2 bg-amber-500 text-slate-950 rounded font-bold text-xs">1</span>
+        <button onclick="switchMainTab('roles')" id="tabBtn-roles" class="tab-nav-btn segmented-pill">
+          🃏 2. 非對稱角色情報卡 (3人協商)
         </button>
-
-        <button id="audioToggleBtn" onclick="toggleAudio()" class="text-xs sm:text-sm font-medium px-3 py-2 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition" title="切換戰情室音效">
-          🔊 音效：開
+        <button onclick="switchMainTab('creator')" id="tabBtn-creator" class="tab-nav-btn segmented-pill">
+          🛠️ 3. 造局者共創工坊 (設計新關卡)
         </button>
-
-        <button onclick="openResetModal()" class="text-xs sm:text-sm font-medium px-3 py-2 rounded-lg bg-slate-800 text-rose-300 border border-slate-700 hover:bg-rose-950/50 hover:border-rose-500/40 transition">
-          🔄 重置本局
+        <button onclick="switchMainTab('debrief')" id="tabBtn-debrief" class="tab-nav-btn segmented-pill">
+          📊 4. 戰報復盤與 AI 關主指令
         </button>
-
-        <button id="openTonyBioBtn" onclick="openTonyBioModal()" class="flex items-center gap-1.5 text-xs sm:text-sm font-bold px-3 py-2 rounded-lg bg-amber-500/15 text-amber-300 border border-amber-500/40 hover:bg-amber-500/25 transition" title="查看平台創作者 TONY 楊文澤顧問簡介">
-          <span>👨‍🏫 TONY 顧問簡介</span>
-        </button>
-
-        <button id="adminDashboardBtn" onclick="openAdminDashboard()" class="hidden items-center gap-1.5 text-xs sm:text-sm font-extrabold px-3.5 py-2 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 text-white border border-emerald-400/50 shadow-lg shadow-emerald-600/25 hover:from-emerald-500 hover:to-teal-500 transition">
-          <span>🛡️ 進入管理後台</span>
-        </button>
-
-        <div id="headerUserBadge" class="hidden items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/90 border border-slate-700 text-xs">
-          <span id="headerUserRoleTag" class="px-1.5 py-0.5 rounded font-bold bg-indigo-500/20 text-indigo-300">會員</span>
-          <span id="headerUserName" class="font-bold text-slate-200 max-w-[110px] truncate">學員</span>
-          <button id="headerLogoutBtn" onclick="handleFirebaseLogout()" class="ml-1 text-rose-400 hover:text-rose-300 font-bold underline">登出</button>
-        </div>
       </div>
-    </div>
-
-    <!-- Main Mode Navigation Tabs -->
-    <div class="max-w-7xl mx-auto mt-3 pt-2 border-t border-slate-800/60 flex flex-wrap gap-1.5">
-      <button onclick="switchMainTab('academy')" id="tabBtn-academy" class="tab-nav-btn text-xs sm:text-sm font-bold px-3.5 py-1.5 rounded-lg bg-indigo-600 text-white shadow-sm transition">
-        📖 0. 先修知識與核心理念 (課前講授)
-      </button>
-      <button onclick="switchMainTab('warroom')" id="tabBtn-warroom" class="tab-nav-btn text-xs sm:text-sm font-medium px-3.5 py-1.5 rounded-lg bg-slate-800/80 text-slate-300 hover:bg-slate-700 transition">
-        🔥 1. 戰情室決策沙盒
-      </button>
-      <button onclick="switchMainTab('roles')" id="tabBtn-roles" class="tab-nav-btn text-xs sm:text-sm font-medium px-3.5 py-1.5 rounded-lg bg-slate-800/80 text-slate-300 hover:bg-slate-700 transition">
-        🃏 2. 非對稱角色情報卡 (3人協商)
-      </button>
-      <button onclick="switchMainTab('creator')" id="tabBtn-creator" class="tab-nav-btn text-xs sm:text-sm font-medium px-3.5 py-1.5 rounded-lg bg-slate-800/80 text-slate-300 hover:bg-slate-700 transition">
-        🛠️ 3. 造局者共創工坊 (設計新關卡)
-      </button>
-      <button onclick="switchMainTab('debrief')" id="tabBtn-debrief" class="tab-nav-btn text-xs sm:text-sm font-medium px-3.5 py-1.5 rounded-lg bg-slate-800/80 text-slate-300 hover:bg-slate-700 transition">
-        📊 4. 戰報復盤與 AI 關主指令
-      </button>
     </div>
   </header>
 
@@ -443,7 +678,7 @@
   <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
 
   <!-- Main Content Container -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-5 space-y-6">
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 space-y-8">
 
     <!-- ==================== TAB 0: ACADEMY / PRE-CLASS LECTURE & METHODOLOGY ==================== -->
     <section id="view-academy" class="space-y-6">
@@ -472,28 +707,30 @@
           </div>
         </div>
 
-        <!-- Sub-navigation for the 4 Knowledge Modules -->
-        <div class="mt-5 pt-4 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-5 gap-2">
-          <button type="button" onclick="switchAcademyModule('all')" id="acadBtn-all" class="acad-nav-btn text-xs font-bold px-3 py-2 rounded-xl bg-indigo-600 text-white text-center transition">
-            📚 完整講義全覽
-          </button>
-          <button type="button" onclick="switchAcademyModule('philosophy')" id="acadBtn-philosophy" class="acad-nav-btn text-xs font-semibold px-3 py-2 rounded-xl bg-slate-800/90 text-slate-300 hover:bg-slate-700 text-center transition">
-            ① 理念篇：遊戲化 × AI 超能力
-          </button>
-          <button type="button" onclick="switchAcademyModule('architecture')" id="acadBtn-architecture" class="acad-nav-btn text-xs font-semibold px-3 py-2 rounded-xl bg-slate-800/90 text-slate-300 hover:bg-slate-700 text-center transition">
-            ② 架構篇：MarTech 黃金三角
-          </button>
-          <button type="button" onclick="switchAcademyModule('method')" id="acadBtn-method" class="acad-nav-btn text-xs font-semibold px-3 py-2 rounded-xl bg-slate-800/90 text-slate-300 hover:bg-slate-700 text-center transition">
-            ③ 方法篇：四階段心流學習法
-          </button>
-          <button type="button" onclick="switchAcademyModule('quiz')" id="acadBtn-quiz" class="acad-nav-btn text-xs font-semibold px-3 py-2 rounded-xl bg-slate-800/90 text-amber-300 hover:bg-slate-700 text-center transition">
-            ④ 實戰前測：3 題觀念快篩
-          </button>
+        <!-- Clean Segmented Horizontal Selection Bar for the 4 Knowledge Modules (Progressive Disclosure) -->
+        <div class="mt-6 pt-5 border-t border-slate-200">
+          <div class="segmented-bar">
+            <button type="button" onclick="switchAcademyModule('philosophy')" id="acadBtn-philosophy" class="acad-nav-btn segmented-pill active">
+              ① 理念篇：遊戲化 × AI 超能力
+            </button>
+            <button type="button" onclick="switchAcademyModule('architecture')" id="acadBtn-architecture" class="acad-nav-btn segmented-pill">
+              ② 架構篇：MarTech 黃金三角
+            </button>
+            <button type="button" onclick="switchAcademyModule('method')" id="acadBtn-method" class="acad-nav-btn segmented-pill">
+              ③ 方法篇：四階段心流學習法
+            </button>
+            <button type="button" onclick="switchAcademyModule('quiz')" id="acadBtn-quiz" class="acad-nav-btn segmented-pill">
+              ④ 實戰前測：3 題觀念快篩
+            </button>
+            <button type="button" onclick="switchAcademyModule('all')" id="acadBtn-all" class="acad-nav-btn segmented-pill">
+              📚 完整講義全覽
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- MODULE 1: PHILOSOPHY (理念篇) -->
-      <div id="acadMod-philosophy" class="acad-module-block glass-card rounded-2xl p-6 space-y-5">
+      <div id="acadMod-philosophy" class="acad-module-block glass-card rounded-3xl p-8 space-y-6">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
           <div>
             <span class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Module 01 ｜ 核心學習理念</span>
@@ -579,7 +816,7 @@
       </div>
 
       <!-- MODULE 2: ARCHITECTURE (架構篇：MarTech 黃金三角與危機操盤邏輯) -->
-      <div id="acadMod-architecture" class="acad-module-block glass-card rounded-2xl p-6 space-y-5">
+      <div id="acadMod-architecture" class="acad-module-block hidden glass-card rounded-3xl p-8 space-y-6">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
           <div>
             <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Module 02 ｜ 專業知識架構</span>
@@ -639,7 +876,7 @@
       </div>
 
       <!-- MODULE 3: METHOD (方法篇：四階段心流學習法) -->
-      <div id="acadMod-method" class="acad-module-block glass-card rounded-2xl p-6 space-y-5">
+      <div id="acadMod-method" class="acad-module-block hidden glass-card rounded-3xl p-8 space-y-6">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
           <div>
             <span class="text-xs font-bold text-amber-400 uppercase tracking-wider">Module 03 ｜ 實戰學習方法論</span>
@@ -696,7 +933,7 @@
       </div>
 
       <!-- MODULE 4: INTERACTIVE PRE-PRACTICE CONCEPT QUIZ (課前觀念快篩) -->
-      <div id="acadMod-quiz" class="acad-module-block glass-card rounded-2xl p-6 border border-amber-500/40 bg-amber-950/10 space-y-5">
+      <div id="acadMod-quiz" class="acad-module-block hidden glass-card rounded-3xl p-8 border border-amber-300 bg-amber-50/40 space-y-6">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
           <div>
             <span class="text-xs font-bold text-amber-400 uppercase tracking-wider">Module 04 ｜ 實戰前觀念檢核 (Readiness Check)</span>
@@ -1039,37 +1276,56 @@
               <div id="aiAdvisorContent" class="space-y-1"></div>
             </div>
 
+            <!-- Clean Horizontal Role Switcher Bar (Progressive Disclosure: Focus on 1 Role at a time or View All) -->
+            <div class="segmented-bar" id="decisionRoleTabsBar">
+              <button type="button" id="roleTabBtn-roleA" onclick="switchDecisionRoleView('roleA')" class="segmented-pill active flex-1">
+                <span>🎙️ 角色 A：公關總監</span>
+                <span id="roleStatusPill-roleA" class="text-[11px] px-2 py-0.5 rounded-full bg-slate-200 text-slate-600">待選</span>
+              </button>
+              <button type="button" id="roleTabBtn-roleB" onclick="switchDecisionRoleView('roleB')" class="segmented-pill flex-1">
+                <span>🚀 角色 B：廣告投手</span>
+                <span id="roleStatusPill-roleB" class="text-[11px] px-2 py-0.5 rounded-full bg-slate-200 text-slate-600">待選</span>
+              </button>
+              <button type="button" id="roleTabBtn-roleC" onclick="switchDecisionRoleView('roleC')" class="segmented-pill flex-1">
+                <span>⚙️ 角色 C：MarTech 架構師</span>
+                <span id="roleStatusPill-roleC" class="text-[11px] px-2 py-0.5 rounded-full bg-slate-200 text-slate-600">待選</span>
+              </button>
+              <button type="button" id="roleTabBtn-all" onclick="switchDecisionRoleView('all')" class="segmented-pill">
+                <span>📋 三方總覽</span>
+              </button>
+            </div>
+
             <!-- Role A Options -->
-            <div class="space-y-2">
+            <div id="rolePanel-roleA" class="space-y-3 p-5 rounded-2xl bg-slate-50 border border-slate-200">
               <div class="flex items-center justify-between">
                 <span class="text-xs sm:text-sm font-bold text-rose-300 flex items-center gap-1.5">
                   🎙️ 角色 A：品牌公關總監（個人 KPI：BTS ≥ 80）
                 </span>
                 <span class="text-[11px] text-slate-400">手握：內部品管瑕疵真相</span>
               </div>
-              <div id="options-roleA" class="grid grid-cols-1 gap-2"></div>
+              <div id="options-roleA" class="grid grid-cols-1 gap-3"></div>
             </div>
 
-            <!-- Role B Options -->
-            <div class="space-y-2 pt-2 border-t border-slate-800/80">
+            <!-- Role B Options (Hidden by default via Progressive Disclosure) -->
+            <div id="rolePanel-roleB" class="hidden space-y-3 p-5 rounded-2xl bg-slate-50 border border-slate-200">
               <div class="flex items-center justify-between">
                 <span class="text-xs sm:text-sm font-bold text-sky-300 flex items-center gap-1.5">
                   🚀 角色 B：成長駭客廣告投手（個人 KPI：ROAS ≥ 3.5x）
                 </span>
                 <span class="text-[11px] text-slate-400">手握：搜尋流量暴增 400% 數據</span>
               </div>
-              <div id="options-roleB" class="grid grid-cols-1 gap-2"></div>
+              <div id="options-roleB" class="grid grid-cols-1 gap-3"></div>
             </div>
 
-            <!-- Role C Options -->
-            <div class="space-y-2 pt-2 border-t border-slate-800/80">
+            <!-- Role C Options (Hidden by default via Progressive Disclosure) -->
+            <div id="rolePanel-roleC" class="hidden space-y-3 p-5 rounded-2xl bg-slate-50 border border-slate-200">
               <div class="flex items-center justify-between">
                 <span class="text-xs sm:text-sm font-bold text-emerald-300 flex items-center gap-1.5">
                   ⚙️ 角色 C：MarTech 與 CRM 架構師（個人 KPI：分眾留存與自動化）
                 </span>
                 <span class="text-[11px] text-slate-400">手握：60%路人 / 25%搖擺 / 15%鐵粉標籤</span>
               </div>
-              <div id="options-roleC" class="grid grid-cols-1 gap-2"></div>
+              <div id="options-roleC" class="grid grid-cols-1 gap-3"></div>
             </div>
 
             <!-- Cross-Team Social Learning Alliance Option (Active in Round 3) -->
@@ -1081,12 +1337,17 @@
               <div id="options-alliance" class="grid grid-cols-1 gap-2"></div>
             </div>
 
-            <!-- Optional Free-Text Tactical Detail for AI Co-Evaluation -->
-            <div class="pt-2 border-t border-slate-800/80">
-              <label for="customStrategyNote" class="block text-xs font-bold text-violet-300 mb-1">
-                ✍️ 小組補充自訂執行細節（選填｜若已設定 Gemini API Key，AI 關主將針對你們寫的文案或分眾條件進行專屬推演）：
-              </label>
-              <input id="customStrategyNote" type="text" placeholder="例如：我們決定在道歉聲明附上第三方 SGS 報告連結，並對 VIP 加碼贈送新品封測資格..." class="w-full bg-slate-900/90 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-violet-500">
+            <!-- Optional Free-Text Tactical Detail for AI Co-Evaluation (Progressive Disclosure) -->
+            <div class="pt-2 border-t border-slate-200">
+              <button type="button" onclick="document.getElementById('customStrategyNoteBox').classList.toggle('hidden')" class="text-xs font-bold text-violet-300 hover:underline flex items-center gap-1">
+                <span>✍️ 展開 / 收合「小組補充自訂執行細節」（選填｜供 Gemini AI 深度推演）</span>
+              </button>
+              <div id="customStrategyNoteBox" class="hidden mt-2.5">
+                <label for="customStrategyNote" class="block text-xs font-bold text-violet-300 mb-1">
+                  ✍️ 小組補充自訂執行細節（選填｜若已設定 Gemini API Key，AI 關主將針對你們寫的文案或分眾條件進行專屬推演）：
+                </label>
+                <input id="customStrategyNote" type="text" placeholder="例如：我們決定在道歉聲明附上第三方 SGS 報告連結，並對 VIP 加碼贈送新品封測資格..." class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-violet-500">
+              </div>
             </div>
 
             <!-- Submit Decision Bar -->
@@ -1359,7 +1620,7 @@
               </button>
             </div>
 
-            <div id="customOptionsDrawer" class="space-y-3 bg-slate-950/70 p-3.5 rounded-xl border border-slate-800">
+            <div id="customOptionsDrawer" class="hidden space-y-3 bg-slate-950/70 p-4 rounded-2xl border border-slate-800">
               <div class="space-y-1.5">
                 <div class="text-xs font-bold text-rose-300">🎙️ 角色 A（公關總監）的三個選項：</div>
                 <input id="customOptA1" type="text" placeholder="A1 (強硬踩雷選項，BTS -18)：例：強硬發律師函警告爆料者，堅稱一切合規" class="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white">
@@ -1607,8 +1868,18 @@
         </div>
       </div>
 
-      <!-- Member Management Table -->
-      <div class="space-y-3">
+      <!-- Horizontal Selection Bar in Management Center (Progressive Disclosure between Member RBAC & AI Report) -->
+      <div class="segmented-bar">
+        <button type="button" id="adminTabBtn-members" onclick="switchAdminCenterTab('members')" class="segmented-pill active flex-1">
+          👥 1. 註冊會員名單與 RBAC 權限管理
+        </button>
+        <button type="button" id="adminTabBtn-aireport" onclick="switchAdminCenterTab('aireport')" class="segmented-pill flex-1">
+          📊 2. AI 區間營運分析與 Word 報表匯出
+        </button>
+      </div>
+
+      <!-- Member Management Table (Admin Tab 1) -->
+      <div id="adminSection-members" class="space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <h3 class="text-sm sm:text-base font-extrabold text-white">👥 註冊會員名單與權限管理</h3>
           <div class="flex items-center gap-2">
@@ -1655,8 +1926,10 @@
         </div>
       </div>
 
-      <!-- Requirement 6: AI Analysis Report with Start/End Date & Word Export -->
-      <div class="p-5 rounded-2xl bg-slate-900/90 border border-violet-500/40 space-y-4">
+      </div><!-- End of #adminSection-members -->
+
+      <!-- Requirement 6: AI Analysis Report with Start/End Date & Word Export (Admin Tab 2 - Progressive Disclosure) -->
+      <div id="adminSection-aireport" class="hidden p-6 rounded-2xl bg-slate-900/90 border border-violet-500/40 space-y-5">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
           <div>
             <span class="text-xs font-extrabold px-2 py-0.5 rounded bg-violet-500/20 text-violet-300">Requirement 06 ｜ AI 商業營運與學習成效分析報告</span>
@@ -4696,6 +4969,68 @@
       }
     }
 
+
+    // ==================== PROGRESSIVE DISCLOSURE & CLEAN UI CONTROLLERS ====================
+    let activeDecisionRoleView = 'roleA';
+
+    function toggleHeaderToolsDrawer() {
+      const pop = document.getElementById('headerToolsPopover');
+      if (pop) pop.classList.toggle('hidden');
+    }
+
+    function switchDecisionRoleView(roleView) {
+      playSound('click');
+      activeDecisionRoleView = roleView;
+      ['roleA', 'roleB', 'roleC', 'all'].forEach(key => {
+        const btn = document.getElementById('roleTabBtn-' + key);
+        if (btn) {
+          if (key === roleView) btn.classList.add('active');
+          else btn.classList.remove('active');
+        }
+      });
+
+      ['roleA', 'roleB', 'roleC'].forEach(rKey => {
+        const panel = document.getElementById('rolePanel-' + rKey);
+        if (!panel) return;
+        if (roleView === 'all' || roleView === rKey) {
+          panel.classList.remove('hidden');
+        } else {
+          panel.classList.add('hidden');
+        }
+      });
+    }
+
+    function updateRoleSelectionStatusPills() {
+      ['roleA', 'roleB', 'roleC'].forEach(rKey => {
+        const pill = document.getElementById('roleStatusPill-' + rKey);
+        if (!pill) return;
+        const val = gameState.selected[rKey];
+        if (val) {
+          pill.textContent = '✓ 已選 ' + val;
+          pill.className = 'text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold';
+        } else {
+          pill.textContent = '待選';
+          pill.className = 'text-[11px] px-2 py-0.5 rounded-full bg-slate-200 text-slate-600';
+        }
+      });
+    }
+
+    function switchAdminCenterTab(tabKey) {
+      playSound('click');
+      ['members', 'aireport'].forEach(k => {
+        const btn = document.getElementById('adminTabBtn-' + k);
+        const sec = document.getElementById('adminSection-' + k);
+        if (btn) {
+          if (k === tabKey) btn.classList.add('active');
+          else btn.classList.remove('active');
+        }
+        if (sec) {
+          if (k === tabKey) sec.classList.remove('hidden');
+          else sec.classList.add('hidden');
+        }
+      });
+    }
+
     window.onload = function() {
       checkUrlParamsForAutoJoin();
       initFirebaseSaaS();
@@ -4737,12 +5072,12 @@
           interaction: { mode: 'index', intersect: false },
           plugins: {
             legend: {
-              labels: { color: '#cbd5e1', font: { size: 11 } }
+              labels: { color: '#334155', font: { size: 11, weight: 'bold' } }
             }
           },
           scales: {
             x: {
-              ticks: { color: '#94a3b8', font: { size: 10 } },
+              ticks: { color: '#475569', font: { size: 10 } },
               grid: { color: 'rgba(148, 163, 184, 0.1)' }
             },
             y: {
@@ -4751,7 +5086,7 @@
               position: 'left',
               min: 0,
               max: 100,
-              ticks: { color: '#34d399', font: { size: 10 } },
+              ticks: { color: '#059669', font: { size: 10, weight: 'bold' } },
               grid: { color: 'rgba(148, 163, 184, 0.1)' }
             },
             y1: {
@@ -4760,7 +5095,7 @@
               position: 'right',
               min: 0,
               max: 5.0,
-              ticks: { color: '#38bdf8', font: { size: 10 } },
+              ticks: { color: '#0284c7', font: { size: 10, weight: 'bold' } },
               grid: { drawOnChartArea: false }
             }
           }
@@ -4997,10 +5332,10 @@
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.onclick = () => selectOption(roleKey, opt.id);
-        btn.className = `w-full text-left p-3 rounded-xl border transition flex items-start justify-between gap-3 ${
+        btn.className = `w-full text-left p-4 rounded-2xl border-2 transition flex items-start justify-between gap-4 ${
           isSelected
-            ? `bg-${colorName}-500/20 border-${colorName}-400 text-white shadow-sm`
-            : 'bg-slate-900/70 border-slate-800 text-slate-300 hover:bg-slate-800/70 hover:border-slate-700'
+            ? 'bg-indigo-50/90 border-indigo-600 text-slate-900 shadow-sm'
+            : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
         }`;
         btn.innerHTML = `
           <div class="space-y-1">
@@ -5037,6 +5372,7 @@
     }
 
     function updatePlannedCostAndSynergy() {
+      updateRoleSelectionStatusPills();
       const scenario = SCENARIOS[currentScenarioKey];
       const roundData = scenario.rounds[gameState.round - 1];
       let totalCost = 0;
@@ -6054,9 +6390,9 @@ ${customStrategyText ? `- 小組補充自訂細節：${customStrategyText}` : ''
         const btn = document.getElementById('acadBtn-' + b);
         if (!btn) return;
         if (b === modName) {
-          btn.className = 'acad-nav-btn text-xs font-bold px-3 py-2 rounded-xl bg-indigo-600 text-white text-center transition';
+          btn.className = 'acad-nav-btn segmented-pill active';
         } else {
-          btn.className = 'acad-nav-btn text-xs font-semibold px-3 py-2 rounded-xl bg-slate-800/90 text-slate-300 hover:bg-slate-700 text-center transition';
+          btn.className = 'acad-nav-btn segmented-pill';
         }
       });
     }
@@ -6101,10 +6437,10 @@ ${customStrategyText ? `- 小組補充自訂細節：${customStrategyText}` : ''
         if (!view || !btn) return;
         if (t === tabName) {
           view.classList.remove('hidden');
-          btn.className = 'tab-nav-btn text-xs sm:text-sm font-bold px-3.5 py-1.5 rounded-lg bg-indigo-600 text-white shadow-sm transition';
+          btn.className = 'tab-nav-btn segmented-pill active';
         } else {
           view.classList.add('hidden');
-          btn.className = 'tab-nav-btn text-xs sm:text-sm font-medium px-3.5 py-1.5 rounded-lg bg-slate-800/80 text-slate-300 hover:bg-slate-700 transition';
+          btn.className = 'tab-nav-btn segmented-pill';
         }
       });
       if (tabName === 'warroom' && kpiChartInstance) {
