@@ -2221,7 +2221,7 @@
         <div>
           <label for="geminiModelSelect" class="block text-xs font-bold text-slate-200 mb-1">選擇 Gemini 模型版本：</label>
           <select id="geminiModelSelect" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-violet-500">
-            <option value="gemini-3.8-flash" selected>gemini-3.8-flash（預設指定高速模型）</option>
+            <option value="gemini-4-hydrogen" selected>gemini-4-hydrogen（預設指定最新模型）</option>
             <option value="gemini-2.5-flash">gemini-2.5-flash（備援高速模型）</option>
             <option value="gemini-2.0-flash">gemini-2.0-flash（通用穩定模型）</option>
           </select>
@@ -5884,23 +5884,29 @@ ${customStrategyText ? `- 小組補充自訂細節：${customStrategyText}` : ''
     }
 
     // ==================== AI COLLABORATION & GEMINI API ENGINE ====================
+    const ALLOWED_GEMINI_MODELS = ['gemini-4-hydrogen', 'gemini-2.5-flash', 'gemini-2.0-flash'];
     let geminiConfig = {
       apiKey: '',
-      model: 'gemini-3.8-flash'
+      model: 'gemini-4-hydrogen'
     };
 
     try {
       const savedKey = localStorage.getItem('tony_martech_gemini_key');
       const savedModel = localStorage.getItem('tony_martech_gemini_model');
       if (savedKey) geminiConfig.apiKey = savedKey;
-      if (savedModel) geminiConfig.model = savedModel;
+      if (savedModel && ALLOWED_GEMINI_MODELS.includes(savedModel)) {
+        geminiConfig.model = savedModel;
+      } else if (savedModel) {
+        geminiConfig.model = 'gemini-4-hydrogen';
+        localStorage.setItem('tony_martech_gemini_model', 'gemini-4-hydrogen');
+      }
     } catch (e) {}
 
     function updateAiHeaderBadge() {
       const badge = document.getElementById('aiStatusBadge');
       if (!badge) return;
       if (geminiConfig.apiKey) {
-        badge.textContent = '已連線 Gemini AI ✨';
+        badge.textContent = `已連線 ${geminiConfig.model || 'gemini-4-hydrogen'} ✨`;
         badge.className = 'text-emerald-300 font-extrabold';
       } else {
         badge.textContent = '內建引擎 (點此設 Key)';
@@ -5912,7 +5918,7 @@ ${customStrategyText ? `- 小組補充自訂細節：${customStrategyText}` : ''
       playSound('click');
       const modal = document.getElementById('aiConfigModal');
       document.getElementById('geminiApiKeyInput').value = geminiConfig.apiKey || '';
-      document.getElementById('geminiModelSelect').value = geminiConfig.model || 'gemini-3.8-flash';
+      document.getElementById('geminiModelSelect').value = geminiConfig.model || 'gemini-4-hydrogen';
       document.getElementById('apiTestResultBox').classList.add('hidden');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
@@ -5961,7 +5967,7 @@ ${customStrategyText ? `- 小組補充自訂細節：${customStrategyText}` : ''
       if (!geminiConfig.apiKey) {
         throw new Error('NO_API_KEY');
       }
-      const targetModel = geminiConfig.model || 'gemini-3.8-flash';
+      const targetModel = geminiConfig.model || 'gemini-4-hydrogen';
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${encodeURIComponent(geminiConfig.apiKey)}`;
       const body = {
         contents: [{ parts: [{ text: promptText }] }],
@@ -5972,7 +5978,7 @@ ${customStrategyText ? `- 小組補充自訂細節：${customStrategyText}` : ''
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
-      if (res.status === 404 && targetModel === 'gemini-3.8-flash') {
+      if (res.status === 404 && targetModel === 'gemini-4-hydrogen') {
         const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(geminiConfig.apiKey)}`;
         res = await fetch(fallbackUrl, {
           method: 'POST',
